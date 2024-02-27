@@ -86,7 +86,7 @@ def playfairGenerateKeyMatrix(key:str):
     for char in key_preprocessed:
 
         key_matrix[i][j] = char
-        key_dict[char] = {i:i,j:j}
+        key_dict[char] = (i,j)
 
         j += 1
 
@@ -147,7 +147,7 @@ def playfairEncrypt(plaintext:str, key:str):
         if first_i == second_i:
 
             bigram_ciphertext += key_matrix[first_i][(first_j + 1) % 5]
-            bigram_ciphertext += key_matrix[second_j][(second_j + 1) % 5]
+            bigram_ciphertext += key_matrix[second_i][(second_j + 1) % 5]
 
         elif first_j == second_j:
 
@@ -159,12 +159,44 @@ def playfairEncrypt(plaintext:str, key:str):
             bigram_ciphertext += key_matrix[first_i][second_j]
             bigram_ciphertext += key_matrix[second_i][first_j]
         
-        ciphertext += bigram_ciphertext + " "
+        ciphertext += bigram_ciphertext
     
-    ciphertext = ciphertext.strip()
-
     return ciphertext
-            
+
+def playfairDecrypt(ciphertext:str, key:str):
+
+    key_matrix, key_dict = playfairGenerateKeyMatrix(key)
+    ciphertext_preprocessed = preprocess(ciphertext).replace("J","I")
+
+    bigrams = [ciphertext_preprocessed[i:i + 2] for i in range(0, len(ciphertext_preprocessed), 2)]
+    plaintext = ""
+
+    for bigram in bigrams:
+
+        first_i, first_j = key_dict[bigram[0]]
+        second_i, second_j = key_dict[bigram[1]]
+
+        bigram_plaintext = ""
+
+        if first_i == second_i:
+
+            bigram_plaintext += key_matrix[first_i][(first_j - 1) % 5]
+            bigram_plaintext += key_matrix[second_i][(second_j - 1) % 5]
+
+        elif first_j == second_j:
+
+            bigram_plaintext += key_matrix[(first_i - 1) % 5][first_j]
+            bigram_plaintext += key_matrix[(second_i - 1) % 5][second_j]
+
+        else:
+
+            bigram_plaintext += key_matrix[first_i][second_j]
+            bigram_plaintext += key_matrix[second_i][first_j]
+        
+        plaintext += bigram_plaintext
+
+    return plaintext
+
 # Fungsi-fungsi product cipher
 
 def productEncrypt(plaintext:str, vigenere_key:str, transposition_key:int):
