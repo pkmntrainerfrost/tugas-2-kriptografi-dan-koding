@@ -75,7 +75,7 @@ async def vigereautokey(textfile: UploadFile = File(...), key: str = Form(...), 
         return {"plaintext" : cipher.vigenereAutokeyDecrypt(text,key)}
 
 @app.post("/product")
-async def vigereautokey(text: str = Form(...), vigenere_key: str = Form(...), transposition_key: int = Form(...), encrypt: bool = Form(...), base64: bool = Form(...)) -> dict:
+async def product(text: str = Form(...), vigenere_key: str = Form(...), transposition_key: int = Form(...), encrypt: bool = Form(...), base64: bool = Form(...)) -> dict:
     
     if encrypt:
         return {"ciphertext" : cipher.productEncrypt(text,vigenere_key,transposition_key)}
@@ -83,7 +83,7 @@ async def vigereautokey(text: str = Form(...), vigenere_key: str = Form(...), tr
         return {"plaintext" : cipher.productDecrypt(text,vigenere_key,transposition_key)}
 
 @app.post("/product/file")
-async def vigereautokey(textfile: UploadFile = File(...), vigenere_key: str = Form(...), transposition_key: int = Form(...), encrypt: bool = Form(...), base64: bool = Form(...)) -> dict:
+async def product(textfile: UploadFile = File(...), vigenere_key: str = Form(...), transposition_key: int = Form(...), encrypt: bool = Form(...), base64: bool = Form(...)) -> dict:
     
     text = textfile.file.read().decode()
 
@@ -91,4 +91,22 @@ async def vigereautokey(textfile: UploadFile = File(...), vigenere_key: str = Fo
         return {"ciphertext" : cipher.productEncrypt(text,vigenere_key,transposition_key)}
     else:
         return {"plaintext" : cipher.productDecrypt(text,vigenere_key,transposition_key)}
+    
+@app.post("/affine")
+async def affine(text: str = Form(...), vigenere_key: str = Form(...), m: int = Form(...), b: int = Form(...), encrypt: bool = Form(...), base64: bool = Form(...)) -> dict:
+    
+    if encrypt:
+        return {"ciphertext" : cipher.affineEncrypt(text,vigenere_key,m,b)}
+    else:
+        return {"plaintext" : cipher.affineDecrypt(text,vigenere_key,m,b)}
+
+@app.post("/product/file")
+async def affine(textfile: UploadFile = File(...), vigenere_key: str = Form(...), m: int = Form(...), b: int = Form(...), encrypt: bool = Form(...), base64: bool = Form(...)) -> dict:
+    
+    text = textfile.file.read().decode()
+
+    if encrypt:
+        return {"ciphertext" : cipher.affineEncrypt(text,vigenere_key,m,b)}
+    else:
+        return {"plaintext" : cipher.affineDecrypt(text,vigenere_key,m,b)}
     
