@@ -134,9 +134,6 @@ def encryptPlayfair(plaintext:str, key:str):
     bigrams = plaintext_padded.split(" ")
     ciphertext = ""
 
-
-encryptPlayfair("temui ibu nanti malam","lima")
-
 # Fungsi-fungsi product cipher
 
 def encryptProductCipher(plaintext:str, vigenere_key:str, transposition_key:int):
@@ -262,5 +259,3 @@ def vigenereAutokeyDecrypt(ciphertext:str, key:str):
         i += 1
 
     return plaintext
-
-print(vigenereAutokeyDecrypt(vigenereAutokeyEncrypt("negara penghasil minyak mentah di dunia","INDO"),"INDO"))
