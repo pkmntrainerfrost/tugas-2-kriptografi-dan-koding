@@ -75,45 +75,12 @@ def vigenereDecrypt(ciphertext:str, key:str):
 
 def extendedVigenereEncrypt(plainbytes:bytes, key:str):
 
-    cipherbytes = b""
-    i = 0
-
-    for byte in plainbytes:
-
-        cipherbytes += ((byte + ord(key[i])) % 256).to_bytes(1,sys.byteorder)
-
-        i = (i + 1) % (len(key))
-
-    return cipherbytes
+    pass
 
 def extendedVigenereDecrypt(cipherbytes:bytes, key:str):
 
-    plainbytes = b""
-    i = 0
-
-    for byte in cipherbytes:
-
-        plainbytes += ((byte - ord(key[i])) % 256).to_bytes(1,sys.byteorder)
-
-        i = (i + 1) % (len(key))
-
-    return plainbytes
-
-def extendedVigenereEncryptText(plaintext:str,key:str):
-
-    plainbytes = plaintext.encode()
-
-    return extendedVigenereEncrypt(plainbytes,key).decode()
-
-def extendedVigenereDecryptText(ciphertext:str,key:str):
-
-    plainbytes = ciphertext.encode()
-
-    return extendedVigenereEncrypt(plainbytes,key).decode()
-
-def extendedVigenereEncryptFile(plainfile:bytes,key:str):
-
     pass
+
 
 # Fungsi-fungsi playfair cipher
 
