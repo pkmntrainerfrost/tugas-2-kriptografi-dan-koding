@@ -24,9 +24,17 @@ app.add_middleware(
 async def vigenere(text: str = Form(...), key: str = Form(...), encrypt: bool = Form(...), base64: bool = Form(...)) -> dict:
     
     if encrypt:
-        return {"ciphertext" : cipher.vigenereEncrypt(text,key)}
+
+        ciphertext = cipher.vigenereEncrypt(text,key)
+        ciphertext = ciphertext if not base64 else cipher.base64Encrypt(ciphertext)
+
+        return {"ciphertext" : ciphertext}
+    
     else:
-        return {"plaintext" : cipher.vigenereDecrypt(text,key)}
+
+        plaintext = cipher.vigenereDecrypt((text if not base64 else cipher.base64Decrypt(text)),key)
+    
+        return {"plaintext" : plaintext}
 
 @app.post("/vigenere/file")
 async def vigenere(textfile: UploadFile = File(...), key: str = Form(...), encrypt: bool = Form(...), base64: bool = Form(...)) -> dict:
@@ -34,17 +42,33 @@ async def vigenere(textfile: UploadFile = File(...), key: str = Form(...), encry
     text = textfile.file.read().decode()
 
     if encrypt:
-        return {"ciphertext" : cipher.vigenereEncrypt(text,key)}
+
+        ciphertext = cipher.vigenereEncrypt(text,key)
+        ciphertext = ciphertext if not base64 else cipher.base64Encrypt(ciphertext)
+
+        return {"ciphertext" : ciphertext}
+    
     else:
-        return {"plaintext" : cipher.vigenereDecrypt(text,key)}
+
+        plaintext = cipher.vigenereDecrypt((text if not base64 else cipher.base64Decrypt(text)),key)
+    
+        return {"plaintext" : plaintext}
 
 @app.post("/playfair")
 async def playfair(text: str = Form(...), key: str = Form(...), encrypt: bool = Form(...), base64: bool = Form(...)) -> dict:
     
     if encrypt:
-        return {"ciphertext" : cipher.playfairEncrypt(text,key)}
+
+        ciphertext = cipher.playfairEncrypt(text,key)
+        ciphertext = ciphertext if not base64 else cipher.base64Encrypt(ciphertext)
+
+        return {"ciphertext" : ciphertext}
+    
     else:
-        return {"plaintext" : cipher.playfairDecrypt(text,key)}
+
+        plaintext = cipher.playfairDecrypt((text if not base64 else cipher.base64Decrypt(text)),key)
+    
+        return {"plaintext" : plaintext}
     
 @app.post("/playfair/file")
 async def playfair(textfile: UploadFile = File(...), key: str = Form(...), encrypt: bool = Form(...), base64: bool = Form(...)) -> dict:
@@ -52,17 +76,33 @@ async def playfair(textfile: UploadFile = File(...), key: str = Form(...), encry
     text = textfile.file.read().decode()
 
     if encrypt:
-        return {"ciphertext" : cipher.playfairEncrypt(text,key)}
+
+        ciphertext = cipher.playfairEncrypt(text,key)
+        ciphertext = ciphertext if not base64 else cipher.base64Encrypt(ciphertext)
+
+        return {"ciphertext" : ciphertext}
+    
     else:
-        return {"plaintext" : cipher.playfairDecrypt(text,key)}
+
+        plaintext = cipher.playfairDecrypt((text if not base64 else cipher.base64Decrypt(text)),key)
+    
+        return {"plaintext" : plaintext}
     
 @app.post("/vigenereautokey")
 async def vigereautokey(text: str = Form(...), key: str = Form(...), encrypt: bool = Form(...), base64: bool = Form(...)) -> dict:
     
     if encrypt:
-        return {"ciphertext" : cipher.vigenereAutokeyEncrypt(text,key)}
+
+        ciphertext = cipher.vigenereAutokeyEncrypt(text,key)
+        ciphertext = ciphertext if not base64 else cipher.base64Encrypt(ciphertext)
+
+        return {"ciphertext" : ciphertext}
+    
     else:
-        return {"plaintext" : cipher.vigenereAutokeyDecrypt(text,key)}
+
+        plaintext = cipher.vigenereAutokeyDecrypt((text if not base64 else cipher.base64Decrypt(text)),key)
+    
+        return {"plaintext" : plaintext}
 
 @app.post("/vigenereautokey/file")
 async def vigereautokey(textfile: UploadFile = File(...), key: str = Form(...), encrypt: bool = Form(...), base64: bool = Form(...)) -> dict:
@@ -70,17 +110,33 @@ async def vigereautokey(textfile: UploadFile = File(...), key: str = Form(...), 
     text = textfile.file.read().decode()
 
     if encrypt:
-        return {"ciphertext" : cipher.vigenereAutokeyEncrypt(text,key)}
+
+        ciphertext = cipher.vigenereAutokeyEncrypt(text,key)
+        ciphertext = ciphertext if not base64 else cipher.base64Encrypt(ciphertext)
+
+        return {"ciphertext" : ciphertext}
+    
     else:
-        return {"plaintext" : cipher.vigenereAutokeyDecrypt(text,key)}
+
+        plaintext = cipher.vigenereAutokeyDecrypt((text if not base64 else cipher.base64Decrypt(text)),key)
+    
+        return {"plaintext" : plaintext}
 
 @app.post("/product")
 async def product(text: str = Form(...), vigenere_key: str = Form(...), transposition_key: int = Form(...), encrypt: bool = Form(...), base64: bool = Form(...)) -> dict:
     
     if encrypt:
-        return {"ciphertext" : cipher.productEncrypt(text,vigenere_key,transposition_key)}
+
+        ciphertext = cipher.productEncrypt(text,vigenere_key,transposition_key)
+        ciphertext = ciphertext if not base64 else cipher.base64Encrypt(ciphertext)
+
+        return {"ciphertext" : ciphertext}
+    
     else:
-        return {"plaintext" : cipher.productDecrypt(text,vigenere_key,transposition_key)}
+
+        plaintext = cipher.productDecrypt((text if not base64 else cipher.base64Decrypt(text)),vigenere_key,transposition_key)
+    
+        return {"plaintext" : plaintext}
 
 @app.post("/product/file")
 async def product(textfile: UploadFile = File(...), vigenere_key: str = Form(...), transposition_key: int = Form(...), encrypt: bool = Form(...), base64: bool = Form(...)) -> dict:
@@ -88,17 +144,33 @@ async def product(textfile: UploadFile = File(...), vigenere_key: str = Form(...
     text = textfile.file.read().decode()
 
     if encrypt:
-        return {"ciphertext" : cipher.productEncrypt(text,vigenere_key,transposition_key)}
+
+        ciphertext = cipher.productEncrypt(text,vigenere_key,transposition_key)
+        ciphertext = ciphertext if not base64 else cipher.base64Encrypt(ciphertext)
+
+        return {"ciphertext" : ciphertext}
+    
     else:
-        return {"plaintext" : cipher.productDecrypt(text,vigenere_key,transposition_key)}
+
+        plaintext = cipher.productDecrypt((text if not base64 else cipher.base64Decrypt(text)),vigenere_key,transposition_key)
+    
+        return {"plaintext" : plaintext}
     
 @app.post("/affine")
 async def affine(text: str = Form(...), vigenere_key: str = Form(...), m: int = Form(...), b: int = Form(...), encrypt: bool = Form(...), base64: bool = Form(...)) -> dict:
     
     if encrypt:
-        return {"ciphertext" : cipher.affineEncrypt(text,vigenere_key,m,b)}
+
+        ciphertext = cipher.affineEncrypt(text,m,b)
+        ciphertext = ciphertext if not base64 else cipher.base64Encrypt(ciphertext)
+
+        return {"ciphertext" : ciphertext}
+    
     else:
-        return {"plaintext" : cipher.affineDecrypt(text,vigenere_key,m,b)}
+
+        plaintext = cipher.affineDecrypt((text if not base64 else cipher.base64Decrypt(text)),m,b)
+    
+        return {"plaintext" : plaintext}
 
 @app.post("/product/file")
 async def affine(textfile: UploadFile = File(...), vigenere_key: str = Form(...), m: int = Form(...), b: int = Form(...), encrypt: bool = Form(...), base64: bool = Form(...)) -> dict:
@@ -106,7 +178,15 @@ async def affine(textfile: UploadFile = File(...), vigenere_key: str = Form(...)
     text = textfile.file.read().decode()
 
     if encrypt:
-        return {"ciphertext" : cipher.affineEncrypt(text,vigenere_key,m,b)}
+
+        ciphertext = cipher.affineEncrypt(text,m,b)
+        ciphertext = ciphertext if not base64 else cipher.base64Encrypt(ciphertext)
+
+        return {"ciphertext" : ciphertext}
+    
     else:
-        return {"plaintext" : cipher.affineDecrypt(text,vigenere_key,m,b)}
+
+        plaintext = cipher.affineDecrypt((text if not base64 else cipher.base64Decrypt(text)),m,b)
+    
+        return {"plaintext" : plaintext}
     
