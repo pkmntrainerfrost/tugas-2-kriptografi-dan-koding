@@ -77,6 +77,7 @@ def vigenereDecrypt(ciphertext:str, key:str):
 def playfairGenerateKeyMatrix(key:str):
 
     key_matrix = [["" for i in range(5)] for j in range(5)]
+    key_dict = {}
     key_preprocessed = "".join(dict.fromkeys(preprocess(key).replace("J","")))
 
     alphabet = "ABCDEFGHIKLMNOPQRSTUVWXYZ"
@@ -85,6 +86,7 @@ def playfairGenerateKeyMatrix(key:str):
     for char in key_preprocessed:
 
         key_matrix[i][j] = char
+        key_dict[char] = {i:i,j:j}
 
         j += 1
 
@@ -97,6 +99,7 @@ def playfairGenerateKeyMatrix(key:str):
     for char in alphabet:
 
         key_matrix[i][j] = char
+        key_dict[char] = (i,j)
 
         j += 1
 
@@ -104,11 +107,11 @@ def playfairGenerateKeyMatrix(key:str):
             j = 0
             i += 1
 
-    return key_matrix
+    return key_matrix, key_dict
 
-def encryptPlayfair(plaintext:str, key:str):
+def playfairEncrypt(plaintext:str, key:str):
     
-    key_matrix = playfairGenerateKeyMatrix(key)
+    key_matrix, key_dict = playfairGenerateKeyMatrix(key)
     plaintext_preprocessed = preprocess(plaintext).replace("J","I")
 
     plaintext_padded = ""
@@ -134,9 +137,37 @@ def encryptPlayfair(plaintext:str, key:str):
     bigrams = plaintext_padded.split(" ")
     ciphertext = ""
 
+    for bigram in bigrams:
+
+        first_i, first_j = key_dict[bigram[0]]
+        second_i, second_j = key_dict[bigram[1]]
+
+        bigram_ciphertext = ""
+
+        if first_i == second_i:
+
+            bigram_ciphertext += key_matrix[first_i][(first_j + 1) % 5]
+            bigram_ciphertext += key_matrix[second_j][(second_j + 1) % 5]
+
+        elif first_j == second_j:
+
+            bigram_ciphertext += key_matrix[(first_i + 1) % 5][first_j]
+            bigram_ciphertext += key_matrix[(second_i + 1) % 5][second_j]
+
+        else:
+
+            bigram_ciphertext += key_matrix[first_i][second_j]
+            bigram_ciphertext += key_matrix[second_i][first_j]
+        
+        ciphertext += bigram_ciphertext + " "
+    
+    ciphertext = ciphertext.strip()
+
+    return ciphertext
+            
 # Fungsi-fungsi product cipher
 
-def encryptProductCipher(plaintext:str, vigenere_key:str, transposition_key:int):
+def productEncrypt(plaintext:str, vigenere_key:str, transposition_key:int):
 
     vigenere_ciphertext = vigenereEncrypt(plaintext,vigenere_key)
 
@@ -166,7 +197,7 @@ def encryptProductCipher(plaintext:str, vigenere_key:str, transposition_key:int)
 
     return ciphertext
 
-def decryptProductCipher(ciphertext:str, vigenere_key:str, transposition_key:int):
+def productDecrypt(ciphertext:str, vigenere_key:str, transposition_key:int):
 
     vigenere_plaintext = vigenereDecrypt(ciphertext,vigenere_key)
 
