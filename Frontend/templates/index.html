@@ -54,7 +54,7 @@
                 </div>
                 <div class="form-group row ml-2">
                     <label for="checkbox" class="col-8 col-form-label">Base64</label>
-                    <input name="base" type="checkbox" class="col-4" style="height: 20px; width: 20px; margin-top: 0.6rem;"></checkbox>
+                    <input id="base" type="checkbox" class="col-4" style="height: 20px; width: 20px; margin-top: 0.6rem;"></checkbox>
                 </div>
                 </div>
                 <div id="divinput" class="row flex-row">
@@ -104,7 +104,7 @@
                 </div>
                 <div class="form-group row">
                     <div class="offset-4 col-8">
-                        <button name="encrypt" type="submit" class="btn btn-primary" onclick="submitForm(this)">Encrypt</button>
+                        <button name="encrypt" type="submit" class="btn btn-primary" onclick="enkripsi(this)">Encrypt</button>
                         <button name="decrypt" type="submit" class="btn btn-primary">Decrypt</button>
                     </div>
                 </div>
@@ -129,14 +129,17 @@
                     if (value == "affine") {
                         document.getElementById('aff').hidden = false;
                         document.getElementById('prod').hidden = true;
+                        document.getElementById('key').hidden = true;
                     }
                     else if (value == "product") {
                         document.getElementById('prod').hidden = false;
                         document.getElementById('aff').hidden = true;
+                        document.getElementById('key').hidden = false;
                     }
                     else {
                         document.getElementById('aff').hidden = true;
                         document.getElementById('prod').hidden = true;
+                        document.getElementById('key').hidden = false;
                     }
                     
                 }
@@ -147,7 +150,7 @@
                     div.innerHTML = '<div class="form-group row"><label for="textarea" class="col-4 col-form-label">Plaintext</label><div class="col-8"><textarea id="pt" name="textarea" cols="40" rows="5" class="form-control"></textarea></div></div><div class="ml-4 form-group row"><label for="textarea" class="col-4 col-form-label">Ciphertext</label><div class="col-8"><textarea id="ct" name="textarea" cols="40" rows="5" class="form-control"></textarea></div></div>'
                 }
 
-                function submitForm(obj){
+                function enkripsi(obj){
                     var form = obj.parentElement;
 
                     if(!form.checkValidity()){
@@ -156,7 +159,7 @@
         
                     var data = new FormData(form);
                     if (plain.checked){
-                        switch(document.getElementById("select").nodeValue) {
+                        switch(document.getElementById("select").value) {
                             case "vigenere":
                                 var route = '/vigenere';
                                 break;
@@ -172,14 +175,12 @@
                             case "product":
                                 var route = '/product';
                                 break;
-                            /*
                             case "extended":
-                                var route = '/extended';
+                                var route = '/vigenereextended';
                                 break;
-                            */
                         }
                     } else {
-                        switch(document.getElementById("select").nodeValue) {
+                        switch(document.getElementById("select").value) {
                             case "vigenere":
                                 var route = '/vigenere/file';
                                 break;
@@ -195,72 +196,203 @@
                             case "product":
                                 var route = '/product/file';
                                 break;
-                            /*
                             case "extended":
-                                var route = '/extended/file';
+                                var route = '/vigenereextended/file';
                                 break;
-                            */
                         }
                     }
 
-                    fetch(route, {
-                        method: 'POST',
-                        body: data
-                    })
-                    .then((response) => {
-                        if (plain.checked){
-                            return response.text();
-                        } else {
-                            return response.blob()
-                        }
-                    })
-                    .then((text) => {
-                        var result = document.getElementById('ct');
+                    if(plain.checked && document.getElementById('select').value == "affine"){
+                        fetch(route, {
+                            method: 'POST',
+                            body: JSON.stringify({
+                                text: document.getElementById('pt').value,
+                                m: document.getElementById('m').value,
+                                b: document.getElementById('b').value,
+                                encrypt: true,
+                                base64: document.getElementById('base').checked,
+                            })
+                        })
+                        .then((response) => {
+                            if (plain.checked){
+                                return response.text();
+                            }
+                        })
+                        .then((text) => {
+                            var result = document.getElementById('ct');
 
-                        if (plain.checked){
-                            result.innerHTML = text.replace(/['"]+/g, '');
-                            
-                            var formBody = new FormData();
-                            formBody.append('ciphertext', document.getElementById('code').innerHTML);
-                            return fetch('/file', {
-                                method: 'POST',
-                                body: formBody
-                            });
-                        } else {
-                            result.innerHTML = [
-                                `<h5>Cipher file</h5>`,
-                                '<hr>'
-                            ].join('');
+                            if (plain.checked){
+                                result.innerHTML = text.replace(/['"]+/g, '');
+                                
+                                /*var formBody = new FormData();
+                                formBody.append('ciphertext', document.getElementById('ct').innerHTML);
+                                return fetch('/file', {
+                                    method: 'POST',
+                                    body: formBody
+                                });*/
+                            } else {
+                                result.innerHTML = [
+                                    `<h5>Cipher file</h5>`,
+                                    '<hr>'
+                                ].join('');
 
-                            var link = document.createElement('a');
-                            link.className = "btn btn-primary";
-                            link.href = window.URL.createObjectURL(text);
-                            link.download = "encrypted vigenere";
-                            link.innerHTML = "download";
-                            result.appendChild(link);
-                        }
-                    })
-                    .then((response) => {
-                        if(response){
-                            return response.blob();
-                        }
-                    })
-                    .then((blob) => {
-                        if(blob){
-                            
-                            result.innerHTML = result.innerHTML + [
-                                `<h5 class="mt-2">Cipher file</h5>`,
-                                '<hr>'
-                            ].join('');
+                                /*var link = document.createElement('a');
+                                link.className = "btn btn-primary";
+                                link.href = window.URL.createObjectURL(text);
+                                link.download = "encrypted vigenere";
+                                link.innerHTML = "download";
+                                result.appendChild(link);*/
+                            }
+                        })
+                        .then((response) => {
+                            if(response){
+                                return response.blob();
+                            }
+                        })
+                        .then((blob) => {
+                            if(blob){
+                                /*
+                                result.innerHTML = result.innerHTML + [
+                                    `<h5 class="mt-2">Cipher file</h5>`,
+                                    '<hr>'
+                                ].join('');
 
-                            var link = document.createElement('a');
-                            link.className = "btn btn-primary";
-                            link.href = window.URL.createObjectURL(blob);
-                            link.download = "encrypted vigenere";
-                            link.innerHTML = "download";
-                            result.appendChild(link);
-                        }
-                    });
+                                var link = document.createElement('a');
+                                link.className = "btn btn-primary";
+                                link.href = window.URL.createObjectURL(blob);
+                                link.download = "encrypted vigenere";
+                                link.innerHTML = "download";
+                                result.appendChild(link);*/
+                            }
+                        });
+                    }
+                    else if (plain.checked && document.getElementById('select').value == "product") {
+                        fetch(route, {
+                            method: 'POST',
+                            body: JSON.stringify({
+                                text: document.getElementById('pt').value,
+                                vigenere_key: document.getElementById('key').value,
+                                transposition_key: document.getElementById('trans').value,
+                                encrypt: true,
+                                base64: document.getElementById('base').checked,
+                            })
+                        })
+                        .then((response) => {
+                            if (plain.checked){
+                                return response.text();
+                            }
+                        })
+                        .then((text) => {
+                            var result = document.getElementById('ct');
+
+                            if (plain.checked){
+                                result.innerHTML = text.replace(/['"]+/g, '');
+                                
+                                /*var formBody = new FormData();
+                                formBody.append('ciphertext', document.getElementById('ct').innerHTML);
+                                return fetch('/file', {
+                                    method: 'POST',
+                                    body: formBody
+                                });*/
+                            } else {
+                                result.innerHTML = [
+                                    `<h5>Cipher file</h5>`,
+                                    '<hr>'
+                                ].join('');
+
+                                /*var link = document.createElement('a');
+                                link.className = "btn btn-primary";
+                                link.href = window.URL.createObjectURL(text);
+                                link.download = "encrypted vigenere";
+                                link.innerHTML = "download";
+                                result.appendChild(link);*/
+                            }
+                        })
+                        .then((response) => {
+                            if(response){
+                                return response.blob();
+                            }
+                        })
+                        .then((blob) => {
+                            if(blob){
+                                /*
+                                result.innerHTML = result.innerHTML + [
+                                    `<h5 class="mt-2">Cipher file</h5>`,
+                                    '<hr>'
+                                ].join('');
+
+                                var link = document.createElement('a');
+                                link.className = "btn btn-primary";
+                                link.href = window.URL.createObjectURL(blob);
+                                link.download = "encrypted vigenere";
+                                link.innerHTML = "download";
+                                result.appendChild(link);*/
+                            }
+                        });
+                    }
+                    else if (plain.checked) {
+                        fetch(route, {
+                            method: 'POST',
+                            body: JSON.stringify({
+                                text: document.getElementById('pt').value,
+                                key: document.getElementById('key').value,
+                                encrypt: true,
+                                base64: document.getElementById('base').checked,
+                            })
+                        })
+                        .then((response) => {
+                            if (plain.checked){
+                                return response.text();
+                            }
+                        })
+                        .then((text) => {
+                            var result = document.getElementById('ct');
+
+                            if (plain.checked){
+                                result.innerHTML = text.replace(/['"]+/g, '');
+                                
+                                /*var formBody = new FormData();
+                                formBody.append('ciphertext', document.getElementById('ct').innerHTML);
+                                return fetch('/file', {
+                                    method: 'POST',
+                                    body: formBody
+                                });*/
+                            } else {
+                                result.innerHTML = [
+                                    `<h5>Cipher file</h5>`,
+                                    '<hr>'
+                                ].join('');
+
+                                /*var link = document.createElement('a');
+                                link.className = "btn btn-primary";
+                                link.href = window.URL.createObjectURL(text);
+                                link.download = "encrypted vigenere";
+                                link.innerHTML = "download";
+                                result.appendChild(link);*/
+                            }
+                        })
+                        .then((response) => {
+                            if(response){
+                                return response.blob();
+                            }
+                        })
+                        .then((blob) => {
+                            if(blob){
+                                /*
+                                result.innerHTML = result.innerHTML + [
+                                    `<h5 class="mt-2">Cipher file</h5>`,
+                                    '<hr>'
+                                ].join('');
+
+                                var link = document.createElement('a');
+                                link.className = "btn btn-primary";
+                                link.href = window.URL.createObjectURL(blob);
+                                link.download = "encrypted vigenere";
+                                link.innerHTML = "download";
+                                result.appendChild(link);*/
+                            }
+                        });
+                    }
                 }
             </script>
             
