@@ -24,7 +24,7 @@ app.add_middleware(
 )
 
 app = FastAPI()
-templates = Jinja2Templates(directory="templates")
+templates = Jinja2Templates(directory="templates/")
 
 @app.get("/")
 async def home(request: Request):
@@ -47,13 +47,18 @@ async def vigenere(text: str = Form(...), key: str = Form(...), encrypt: bool = 
         return {"plaintext" : plaintext}
 
 @app.post("/vigenere/file")
-async def vigenere(textfile: UploadFile = File(...), key: str = Form(...), encrypt: bool = Form(...), base64: bool = Form(...)) -> dict:
+async def vigenere(filepath: str = Form(...), key: str = Form(...), encrypt: bool = Form(...), base64: bool = Form(...)) -> dict:
     
-    text = textfile.file.read().decode()
+    text = ""
+
+    try:
+        with open(filepath,"r") as textfile:
+            text = textfile.read()
+    except:
+        return {"error" : "Invalid file or filepath!"}
 
     if encrypt:
 
-        ciphertext = cipher.vigenereEncrypt(text,key)
         ciphertext = ciphertext if not base64 else cipher.base64Encrypt(ciphertext)
 
         return {"ciphertext" : ciphertext}
@@ -80,30 +85,41 @@ async def vigenereextended(text: str = Form(...), key: str = Form(...), encrypt:
         return {"plaintext" : plaintext}
 
 @app.post("/vigenereextended/file")
-async def vigenereextended(bytefile: UploadFile = File(...), key: str = Form(...), encrypt: bool = Form(...), base64: bool = Form(...)) -> dict:
+async def vigenereextended(filepath: str = Form(...), destinationfilepath: str = Form(...), key: str = Form(...), encrypt: bool = Form(...), base64: bool = Form(...)) -> dict:
     
+    text = ""
+
+    try:
+        bytefile = open(filepath,"rb")
+    except:
+        return {"error" : "Invalid file or filepath!"}
+
     if encrypt:
 
-        ciphertext = cipher.vigenereExtendedEncryptBytes(bytefile.file,key)
+        ciphertext = cipher.vigenereExtendedEncryptBytes(bytefile,key)
 
-        with open(bytefile.filename, "wb") as binary_file:
+        with open(destinationfilepath, "wb") as binary_file:
         
             binary_file.write(ciphertext) 
+        
+        bytefile.close()
 
-        return FileResponse(bytefile.filename)
+        return {"saved" : destinationfilepath}
     
     else:
 
-        plaintext = cipher.vigenereExtendedDecryptBytes(bytefile.file,key)
+        plaintext = cipher.vigenereExtendedDecryptBytes(bytefile,key)
 
-        with open(bytefile.filename, "wb") as binary_file:
+        with open(destinationfilepath, "wb") as binary_file:
         
             binary_file.write(plaintext) 
+
+        bytefile.close()
     
-        return FileResponse(bytefile.filename)
+        return {"saved" : destinationfilepath}
 
 @app.post("/playfair")
-async def playfair(text: str = Form(...), key: str = Form(...), encrypt: bool = Form(...), base64: bool = Form(...)) -> dict:
+async def playfair(txt: str = Form(...), key: str = Form(...), encrypt: bool = Form(...), base64: bool = Form(...)) -> dict:
     
     if encrypt:
 
@@ -119,9 +135,15 @@ async def playfair(text: str = Form(...), key: str = Form(...), encrypt: bool = 
         return {"plaintext" : plaintext}
     
 @app.post("/playfair/file")
-async def playfair(textfile: UploadFile = File(...), key: str = Form(...), encrypt: bool = Form(...), base64: bool = Form(...)) -> dict:
+async def playfair(filepath: str = Form(...), key: str = Form(...), encrypt: bool = Form(...), base64: bool = Form(...)) -> dict:
     
-    text = textfile.file.read().decode()
+    text = ""
+
+    try:
+        with open(filepath,"r") as textfile:
+            text = textfile.read()
+    except:
+        return {"error" : "Invalid file or filepath!"}
 
     if encrypt:
 
@@ -153,9 +175,15 @@ async def vigereautokey(text: str = Form(...), key: str = Form(...), encrypt: bo
         return {"plaintext" : plaintext}
 
 @app.post("/vigenereautokey/file")
-async def vigereautokey(textfile: UploadFile = File(...), key: str = Form(...), encrypt: bool = Form(...), base64: bool = Form(...)) -> dict:
+async def vigereautokey(filepath: str = Form(...), key: str = Form(...), encrypt: bool = Form(...), base64: bool = Form(...)) -> dict:
     
-    text = textfile.file.read().decode()
+    text = ""
+
+    try:
+        with open(filepath,"r") as textfile:
+            text = textfile.read()
+    except:
+        return {"error" : "Invalid file or filepath!"}
 
     if encrypt:
 
@@ -187,9 +215,15 @@ async def product(text: str = Form(...), vigenere_key: str = Form(...), transpos
         return {"plaintext" : plaintext}
 
 @app.post("/product/file")
-async def product(textfile: UploadFile = File(...), vigenere_key: str = Form(...), transposition_key: int = Form(...), encrypt: bool = Form(...), base64: bool = Form(...)) -> dict:
+async def product(filepath: str = Form(...), vigenere_key: str = Form(...), transposition_key: int = Form(...), encrypt: bool = Form(...), base64: bool = Form(...)) -> dict:
     
-    text = textfile.file.read().decode()
+    text = ""
+
+    try:
+        with open(filepath,"r") as textfile:
+            text = textfile.read()
+    except:
+        return {"error" : "Invalid file or filepath!"}
 
     if encrypt:
 
@@ -207,6 +241,11 @@ async def product(textfile: UploadFile = File(...), vigenere_key: str = Form(...
 @app.post("/affine")
 async def affine(text: str = Form(...), m: int = Form(...), b: int = Form(...), encrypt: bool = Form(...), base64: bool = Form(...)) -> dict:
     
+    # validasi hardcode soalnya kepepet waktu
+    relprimes = [1,3,5,7,9,11,15,17,19,21,23,25]
+    if (m <= 0 or m >= 26 or (m not in relprimes)):
+        return {"error" : "M is not relatively prime with 26!"}
+
     if encrypt:
 
         ciphertext = cipher.affineEncrypt(text,m,b)
@@ -221,9 +260,15 @@ async def affine(text: str = Form(...), m: int = Form(...), b: int = Form(...), 
         return {"plaintext" : plaintext}
 
 @app.post("/affine/file")
-async def affine(textfile: UploadFile = File(...), m: int = Form(...), b: int = Form(...), encrypt: bool = Form(...), base64: bool = Form(...)) -> dict:
+async def affine(filepath: str = Form(...) , m: int = Form(...), b: int = Form(...), encrypt: bool = Form(...), base64: bool = Form(...)) -> dict:
     
-    text = textfile.file.read().decode()
+    text = ""
+
+    try:
+        with open(filepath,"r") as textfile:
+            text = textfile.read()
+    except:
+        return {"error" : "Invalid file or filepath!"}
 
     if encrypt:
 
