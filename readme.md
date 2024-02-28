@@ -39,7 +39,7 @@ Mahasiswa ditugaskan untuk membuat ragam cipher klasik dapat dijalankan melalui 
     - Modul **Jinja2** digunakan untuk mempermudah routing antara laman-laman HTML.
 ## Bagian 2: Eksekusi dan Penggunaan
 1. Jalankan file main.py dengan menggunakan kode berikut:
-    > py Backend/main.py
+    > py main.py
 2. Modul uvicorn akan menginisiasi server. Jika tertulis "Application startup complete." ini berarti server telah siap digunakan.
 3. Akses IP Address yang muncul pada layar terminal (dalam hal ini bagian 0.0.0.0 dapat digantikan dengan localhost menjadi http://localhost:8000).
 4. Anda sudah bisa menggunakan algoritma yang tersedia dan selamat mencoba beragam _cipher_ yang ingin digunakan.
