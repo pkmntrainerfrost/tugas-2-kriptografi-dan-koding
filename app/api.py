@@ -119,7 +119,7 @@ async def vigenereextended(filepath: str = Form(...), destinationfilepath: str =
         return {"saved" : destinationfilepath}
 
 @app.post("/playfair")
-async def playfair(txt: str = Form(...), key: str = Form(...), encrypt: bool = Form(...), base64: bool = Form(...)) -> dict:
+async def playfair(text: str = Form(...), key: str = Form(...), encrypt: bool = Form(...), base64: bool = Form(...)) -> dict:
     
     if encrypt:
 

@@ -192,6 +192,8 @@ def playfairEncrypt(plaintext:str, key:str):
     bigrams = plaintext_padded.split(" ")
     ciphertext = ""
 
+    bigrams = [bigram for bigram in bigrams if bigram != ""]
+
     for bigram in bigrams:
 
         first_i, first_j = key_dict[bigram[0]]
@@ -225,6 +227,8 @@ def playfairDecrypt(ciphertext:str, key:str):
 
     bigrams = [ciphertext_preprocessed[i:i + 2] for i in range(0, len(ciphertext_preprocessed), 2)]
     plaintext = ""
+
+    bigrams = [bigram for bigram in bigrams if bigram != ""]
 
     for bigram in bigrams:
 
