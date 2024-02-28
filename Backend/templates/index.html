@@ -17,7 +17,7 @@
         <h1 class="text-center mt-5">Rahasiakan isi pesanmu dengan cipher!</h1>
         <div class="row justify-content-center">
             <div class="col-md-8">
-                <form id="cipherForm" class="mt-5">
+                <form id="cipherForm" class="mt-5" enctype="multipart/form-data">
                     <div class="form-group">
                         <label for="inputType">Input Type</label>
                         <div>
@@ -105,7 +105,8 @@
             } else {
                 inputFields.innerHTML += `
                     <div class="form-group">
-                        <input type="file" id="fileInput" name="textfile">
+                        <label for="fileInput">File</label>
+                        <input type="file" id="fileInput" name="textfile" class="form-control-file">
                     </div>
                 `;
             }
@@ -156,8 +157,6 @@
             const form = document.getElementById('cipherForm');
             const formData = new FormData(form);
             formData.append('encrypt', encrypt); // Add encrypt/decrypt boolean
-
-            console.log(formData);
             
             // Determine the appropriate API endpoint
             const cipher = formData.get('cipher');
@@ -165,16 +164,18 @@
             if (formData.get('inputType') === 'file') {
                 endpoint += '/file';
             }
+            if (!formData.has("base64")) {
+                formData.append("base64","off");
+            }
     
             // Handle the request based on input type
             let requestBody;
                 requestBody = new URLSearchParams();
                 for (const [key, value] of formData) {
                     requestBody.append(key, value);
+
                 }
-                if (!requestBody.has("base64")) {
-                    requestBody.append("base64","off");
-                }
+                
     
             try {
                 var response;
@@ -186,7 +187,7 @@
                 } else {
                     response = await fetch(endpoint, {
                         method: 'POST',
-                        body: requestBody,
+                        body: formData,
                     });
                 }
                 
