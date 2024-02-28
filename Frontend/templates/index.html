@@ -24,13 +24,13 @@
                         <div class="col-2">
                         <div class="custom-controls-stacked">
                             <div class="custom-control custom-radio">
-                            <input name="radio" id="radio_0" type="radio" class="custom-control-input" value="plaintext" required="required" checked> 
+                            <input name="radio" id="radio_0" type="radio" class="custom-control-input" value="plaintext" required="required" onclick="check(this)" onchange="toPlain()" checked> 
                             <label for="radio_0" class="custom-control-label">Text</label>
                             </div>
                         </div>
                         <div class="custom-controls-stacked">
                             <div class="custom-control custom-radio">
-                            <input name="radio" id="radio_1" type="radio" class="custom-control-input" value="file" required="required"> 
+                            <input name="radio" id="radio_1" type="radio" class="custom-control-input" value="file" required="required" onclick="check(this)" onchange="toFile()"> 
                             <label for="radio_1" class="custom-control-label">File</label>
                             </div>
                         </div>
@@ -39,10 +39,10 @@
                 <div class="pl-5 pr-5 ml-5 mr-5">
 
                 </div>
-                <div class="form-group row ml-4 pl-3">
-                    <label for="select" class="col-6 col-form-label pr-5">Cipher</label> 
+                <div class="form-group row">
+                    <label for="select" class="col-6 col-form-label" style="padding-right: 6.3rem; padding-left: 4.4rem;">Cipher</label> 
                     <div class="col-6">
-                    <select id="select" name="select" class="custom-select" required="required">
+                    <select id="select" name="select" class="custom-select" required="required" onchange="selection(this.value)">
                         <option value="vigenere">Vigenere</option>
                         <option value="affine">Affine</option>
                         <option value="playfair">Playfair</option>
@@ -52,18 +52,22 @@
                     </select>
                     </div>
                 </div>
+                <div class="form-group row ml-2">
+                    <label for="checkbox" class="col-8 col-form-label">Base64</label>
+                    <input name="base" type="checkbox" class="col-4" style="height: 20px; width: 20px; margin-top: 0.6rem;"></checkbox>
                 </div>
-                <div class="row flex-row">
+                </div>
+                <div id="divinput" class="row flex-row">
                     <div class="form-group row">
-                        <label for="pt" class="col-4 col-form-label">Plaintext</label> 
+                        <label for="textarea" class="col-4 col-form-label">Plaintext</label> 
                         <div class="col-8">
-                        <textarea id="textarea" name="textarea" cols="40" rows="5" class="form-control"></textarea>
+                        <textarea id="pt" name="plaintext" cols="40" rows="5" class="form-control"></textarea>
                         </div>
                     </div>
                     <div class="ml-4 form-group row">
                         <label for="textarea" class="col-4 col-form-label">Ciphertext</label> 
                         <div class="col-8">
-                        <textarea id="ct" name="textarea" cols="40" rows="5" class="form-control"></textarea>
+                        <textarea id="ct" name="ciphertext" cols="40" rows="5" class="form-control"></textarea>
                         </div>
                     </div>
                 </div>
@@ -71,22 +75,194 @@
                     <div class="form-group row col-10">
                         <label for="text" class="col-form-label" style="margin-right: 4rem;">Key</label> 
                         <div style="margin-left: 3.9rem;">
-                        <input id="text" name="text" placeholder="example: The Quick Brown Fox Jumps Over A Lazy Dog" type="text" class="form-control" required="required" style="width: 35rem;">
+                        <input id="key" name="key" placeholder="example: The Quick Brown Fox Jumps Over A Lazy Dog" type="text" class="form-control" required="required" style="width: 35rem;">
                         </div>
                     </div>
                     <div class="ml-auto">
                         <button name="save" type="button" class="btn btn-primary" disabled>Save</button>
                     </div>
                 </div>
+                <div id="aff" hidden class="form-group">
+                    <div class="row">
+                        <label for="text" class="col-form-label" style="margin-right: 4rem;">M</label> 
+                        <div style="margin-left: 4.55rem;">
+                            <input id="m" name="m" placeholder="This number should be a relative prime to 26" type="text" class="form-control" required="required" style="width: 35rem;">
+                        </div>
+                    </div>
+                    <div class="row">
+                        <label for="text" class="col-form-label" style="margin-right: 4rem;">B</label> 
+                        <div style="margin-left: 4.9rem;">
+                            <input id="b" name="b" type="text" class="form-control" required="required" style="width: 35rem;">
+                        </div>
+                    </div>
+                </div>
+                <div id="prod" hidden class="form-group row">
+                    <label for="text" class="col-form-label" style="margin-right: 1.75rem;">Transposition Key</label> 
+                    <div>
+                        <input id="trans" name="trans" placeholder="" type="text" class="form-control" required="required" style="width: 35rem;">
+                    </div>
+                </div>
                 <div class="form-group row">
                     <div class="offset-4 col-8">
-                        <button name="encrypt" type="submit" class="btn btn-primary">Encrypt</button>
+                        <button name="encrypt" type="submit" class="btn btn-primary" onclick="submitForm(this)">Encrypt</button>
                         <button name="decrypt" type="submit" class="btn btn-primary">Decrypt</button>
                     </div>
                 </div>
                 </form>
             </div>    
-            
+            <script>
+                const plain = document.getElementById('radio_0');
+                const file = document.getElementById('radio_1');
+                const div = document.getElementById('divinput');
+                function check(radio) {
+                    if (radio.checked == false && radio.id == "radio_0") {
+                        plain.checked = true;
+                        file.checked = false;
+                    }
+                    if (radio.checked == false && radio.id == "radio_1") {
+                        file.checked = true;
+                        plain.checked = false;
+                    }
+                }
+
+                function selection(value) {
+                    if (value == "affine") {
+                        document.getElementById('aff').hidden = false;
+                        document.getElementById('prod').hidden = true;
+                    }
+                    else if (value == "product") {
+                        document.getElementById('prod').hidden = false;
+                        document.getElementById('aff').hidden = true;
+                    }
+                    else {
+                        document.getElementById('aff').hidden = true;
+                        document.getElementById('prod').hidden = true;
+                    }
+                    
+                }
+                function toFile() {
+                    div.innerHTML = '<div class="form-group row"><label for="file" class="col-9 col-form-label">File</label> <div class="col-3"><button id="filebrowser" name="file" class="btn btn-secondary">Upload a file</button></div></div><div class="form-group row" style="margin-left: 17.65rem"><label for="textarea" class="col-4 col-form-label">Ciphertext</label><div class="col-8"><textarea id="ct" name="textarea" cols="40" rows="5" class="form-control"></textarea></div></div>'
+                }
+                function toPlain() {
+                    div.innerHTML = '<div class="form-group row"><label for="textarea" class="col-4 col-form-label">Plaintext</label><div class="col-8"><textarea id="pt" name="textarea" cols="40" rows="5" class="form-control"></textarea></div></div><div class="ml-4 form-group row"><label for="textarea" class="col-4 col-form-label">Ciphertext</label><div class="col-8"><textarea id="ct" name="textarea" cols="40" rows="5" class="form-control"></textarea></div></div>'
+                }
+
+                function submitForm(obj){
+                    var form = obj.parentElement;
+
+                    if(!form.checkValidity()){
+                        return form.reportValidity();
+                    }
+        
+                    var data = new FormData(form);
+                    if (plain.checked){
+                        switch(document.getElementById("select").nodeValue) {
+                            case "vigenere":
+                                var route = '/vigenere';
+                                break;
+                            case "affine":
+                                var route = '/affine';
+                                break;
+                            case "playfair":
+                                var route = '/playfair';
+                                break;
+                            case "autokey":
+                                var route = '/vigenereautokey';
+                                break;
+                            case "product":
+                                var route = '/product';
+                                break;
+                            /*
+                            case "extended":
+                                var route = '/extended';
+                                break;
+                            */
+                        }
+                    } else {
+                        switch(document.getElementById("select").nodeValue) {
+                            case "vigenere":
+                                var route = '/vigenere/file';
+                                break;
+                            case "affine":
+                                var route = '/affine/file';
+                                break;
+                            case "playfair":
+                                var route = '/playfair/file';
+                                break;
+                            case "autokey":
+                                var route = '/vigenereautokey/file';
+                                break;
+                            case "product":
+                                var route = '/product/file';
+                                break;
+                            /*
+                            case "extended":
+                                var route = '/extended/file';
+                                break;
+                            */
+                        }
+                    }
+
+                    fetch(route, {
+                        method: 'POST',
+                        body: data
+                    })
+                    .then((response) => {
+                        if (plain.checked){
+                            return response.text();
+                        } else {
+                            return response.blob()
+                        }
+                    })
+                    .then((text) => {
+                        var result = document.getElementById('ct');
+
+                        if (plain.checked){
+                            result.innerHTML = text.replace(/['"]+/g, '');
+                            
+                            var formBody = new FormData();
+                            formBody.append('ciphertext', document.getElementById('code').innerHTML);
+                            return fetch('/file', {
+                                method: 'POST',
+                                body: formBody
+                            });
+                        } else {
+                            result.innerHTML = [
+                                `<h5>Cipher file</h5>`,
+                                '<hr>'
+                            ].join('');
+
+                            var link = document.createElement('a');
+                            link.className = "btn btn-primary";
+                            link.href = window.URL.createObjectURL(text);
+                            link.download = "encrypted vigenere";
+                            link.innerHTML = "download";
+                            result.appendChild(link);
+                        }
+                    })
+                    .then((response) => {
+                        if(response){
+                            return response.blob();
+                        }
+                    })
+                    .then((blob) => {
+                        if(blob){
+                            
+                            result.innerHTML = result.innerHTML + [
+                                `<h5 class="mt-2">Cipher file</h5>`,
+                                '<hr>'
+                            ].join('');
+
+                            var link = document.createElement('a');
+                            link.className = "btn btn-primary";
+                            link.href = window.URL.createObjectURL(blob);
+                            link.download = "encrypted vigenere";
+                            link.innerHTML = "download";
+                            result.appendChild(link);
+                        }
+                    });
+                }
+            </script>
             
             
         </div>
