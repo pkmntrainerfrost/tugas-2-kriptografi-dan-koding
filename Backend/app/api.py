@@ -172,8 +172,8 @@ async def affine(text: str = Form(...), m: int = Form(...), b: int = Form(...), 
     
         return {"plaintext" : plaintext}
 
-@app.post("/product/file")
-async def affine(textfile: UploadFile = File(...), vigenere_key: str = Form(...), m: int = Form(...), b: int = Form(...), encrypt: bool = Form(...), base64: bool = Form(...)) -> dict:
+@app.post("/affine/file")
+async def affine(textfile: UploadFile = File(...), m: int = Form(...), b: int = Form(...), encrypt: bool = Form(...), base64: bool = Form(...)) -> dict:
     
     text = textfile.file.read().decode()
 
