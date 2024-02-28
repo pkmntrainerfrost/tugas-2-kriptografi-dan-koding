@@ -1,6 +1,8 @@
 from fastapi import FastAPI, Form, File, UploadFile, Request
 from fastapi.responses import FileResponse
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.templating import Jinja2Templates
+
 
 from pydantic import BaseModel
 
@@ -15,11 +17,18 @@ origins = [
 
 app.add_middleware(
         CORSMiddleware,
-        allow_origins=origins,
+        allow_origins=["*"],
         allow_credentials=True,
         allow_methods=["*"],
         allow_headers=["*"]
 )
+
+app = FastAPI()
+templates = Jinja2Templates(directory="templates")
+
+@app.get("/")
+async def home(request: Request):
+    return templates.TemplateResponse('index.html', {'request': request})
 
 @app.post("/vigenere")
 async def vigenere(text: str = Form(...), key: str = Form(...), encrypt: bool = Form(...), base64: bool = Form(...)) -> dict:

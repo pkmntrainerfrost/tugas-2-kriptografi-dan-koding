@@ -1,0 +1,219 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.1.3/css/bootstrap.min.css"> 
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css">
+    <link rel="apple-touch-icon" sizes="180x180" href="assets/apple-touch-icon.png">
+    <link rel="icon" type="image/png" sizes="32x32" href="assets/favicon-32x32.png">
+    <link rel="icon" type="image/png" sizes="16x16" href="assets/favicon-16x16.png">
+    <link rel="manifest" href="assets/site.webmanifest">
+    <title>Tugas 1 Kriptografi dan Koding STI</title>
+</head>
+<body>
+    <div class="container">
+        <h1 class="text-center mt-5">Rahasiakan isi pesanmu dengan cipher!</h1>
+        <div class="row justify-content-center">
+            <div class="col-md-8">
+                <form id="cipherForm" class="mt-5">
+                    <div class="form-group">
+                        <label for="inputType">Input Type</label>
+                        <div>
+                            <div class="custom-control custom-radio custom-control-inline">
+                                <input type="radio" id="inputTypeText" name="inputType" class="custom-control-input" value="text" onclick="updateFormFields()" checked>
+                                <label class="custom-control-label" for="inputTypeText">Text</label>
+                            </div>
+                            <div class="custom-control custom-radio custom-control-inline">
+                                <input type="radio" id="inputTypeFile" name="inputType" class="custom-control-input" value="file" onclick="updateFormFields()">
+                                <label class="custom-control-label" for="inputTypeFile">File</label>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label for="cipherSelect">Cipher</label>
+                        <select id="cipherSelect" name="cipher" class="custom-select" required onchange="updateFormFields()">
+                            <option value="vigenere">Vigenere</option>
+                            <option value="affine">Affine</option>
+                            <option value="playfair">Playfair</option>
+                            <option value="autokey">Autokey Vigenere</option>
+                            <option value="extend">Extended Vigenere</option>
+                            <option value="product">Product</option>
+                        </select>
+                    </div>
+                    <div class="form-group" id="base64FormGroup">
+                        <div class="custom-control custom-checkbox">
+                            <input type="checkbox" class="custom-control-input" id="base64" name="base64" checked>
+                            <label class="custom-control-label" for="base64">Base64</label>
+                        </div>
+                    </div>
+                    <div id="inputFields">
+                        <!-- Input fields will be inserted here based on the selected cipher -->
+                    </div>
+                    <div class="form-group">
+                        <button type="button" class="btn btn-primary" onclick="processData(true)">Encrypt</button>
+                        <button type="button" class="btn btn-secondary" onclick="processData(false)">Decrypt</button>
+                    </div>
+                </form>
+                <div id="resultSection" class="mt-5">
+                    <!-- Results will be shown here -->
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            updateFormFields(); // Call this function to set up the initial state of the form fields
+        });
+
+        function updateFormFields() {
+
+            const radios = document.getElementsByName('inputType');
+
+            var type;
+
+            for (var i = 0, length = radios.length; i < length; i++) {
+                if (radios[i].checked) {
+                    type = radios[i].value;
+                    break;
+                }
+            }
+
+
+            const cipher = document.getElementById('cipherSelect').value;
+            const base64FormGroup = document.getElementById('base64FormGroup');
+            const inputFields = document.getElementById('inputFields');
+
+            // Reset input fields
+            inputFields.innerHTML = '';
+
+            // Handle base64 option for Extended Vigenere
+            base64FormGroup.style.display = cipher === 'extend' ? 'none' : 'block';
+            if (cipher === 'extend') {
+                document.getElementById('base64').checked = false;
+            }
+
+            if (type === "text") {
+                inputFields.innerHTML += `
+                    <div class="form-group">
+                        <label for="plaintext">Plaintext</label>
+                        <textarea id="plaintext" name="text" cols="40" rows="5" class="form-control"></textarea>
+                    </div>
+                `;
+            } else {
+                inputFields.innerHTML += `
+                    <div class="form-group">
+                        <input type="file" id="fileInput" name="textfile">
+                    </div>
+                `;
+            }
+        
+
+            // Common fields for all ciphers except Affine and Product
+            if (['affine', 'product'].indexOf(cipher) === -1) {
+                inputFields.innerHTML += `
+                    <div class="form-group">
+                        <label for="key">Key</label>
+                        <input id="key" name="key" type="text" class="form-control">
+                    </div>
+                `;
+            }
+
+            // Additional fields for Affine cipher
+            if (cipher === 'affine') {
+                inputFields.innerHTML += `
+                    <div class="form-group">
+                        <label for="affineM">M (Relative Prime to 26)</label>
+                        <input id="affineM" name="m" type="number" class="form-control">
+                    </div>
+                    <div class="form-group">
+                        <label for="affineB">B</label>
+                        <input id="affineB" name="b" type="number" class="form-control">
+                    </div>
+                `;
+            }
+
+            // Additional fields for Product cipher
+            if (cipher === 'product') {
+                inputFields.innerHTML += `
+                    <div class="form-group">
+                        <label for="productKey">Vigenere Key</label>
+                        <input id="productKey" name="vigenere_key" type="text" class="form-control">
+                    </div>
+                    <div class="form-group">
+                        <label for="transpositionKey">Transposition Key (Integer)</label>
+                        <input id="transpositionKey" name="transposition_key" type="number" class="form-control">
+                    </div>
+                `;
+            }
+        }
+    </script>
+    <script>
+        // Function to handle encryption and decryption requests
+        async function processData(encrypt) {
+            const form = document.getElementById('cipherForm');
+            const formData = new FormData(form);
+            formData.append('encrypt', encrypt); // Add encrypt/decrypt boolean
+
+            console.log(formData);
+            
+            // Determine the appropriate API endpoint
+            const cipher = formData.get('cipher');
+            let endpoint = `/${cipher}`;
+            if (formData.get('inputType') === 'file') {
+                endpoint += '/file';
+            }
+    
+            // Handle the request based on input type
+            let requestBody;
+                requestBody = new URLSearchParams();
+                for (const [key, value] of formData) {
+                    requestBody.append(key, value);
+                }
+                if (!requestBody.has("base64")) {
+                    requestBody.append("base64","off");
+                }
+    
+            try {
+                var response;
+                if (formData.get('inputType') === 'file') {
+                    response = await fetch(endpoint, {
+                        method: 'POST',
+                        body: requestBody,
+                    });
+                } else {
+                    response = await fetch(endpoint, {
+                        method: 'POST',
+                        body: requestBody,
+                    });
+                }
+                
+                const result = await response.json();
+                // Display the result
+                displayResult(result, encrypt);
+            } catch (error) {
+                console.error('Error:', error);
+                displayResult({ error: "An error occurred while processing your request." }, encrypt);
+            }
+        }
+    
+        // Function to display results
+        function displayResult(result, encrypt) {
+            const resultSection = document.getElementById('resultSection');
+            resultSection.innerHTML = ''; // Clear previous results
+    
+            let resultText = '';
+            if (result.error) {
+                resultText = `<p class="text-danger">${result.error}</p>`;
+            } else {
+                const key = encrypt ? 'ciphertext' : 'plaintext';
+                resultText = `<p><strong>${encrypt ? 'Ciphertext' : 'Plaintext'}:</strong> ${result[key]}</p>`;
+            }
+    
+            resultSection.innerHTML = resultText;
+        }
+    </script>    
+</body>
+</html>
