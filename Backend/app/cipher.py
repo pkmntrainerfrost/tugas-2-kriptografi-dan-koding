@@ -241,13 +241,11 @@ def productEncrypt(plaintext:str, vigenere_key:str, transposition_key:int):
 
 def productDecrypt(ciphertext:str, vigenere_key:str, transposition_key:int):
 
-    vigenere_plaintext = vigenereDecrypt(ciphertext,vigenere_key)
-
-    transposition_matrix = [["" for i in range(-(len(vigenere_plaintext) // -transposition_key))] for i in range(transposition_key)]
-    plaintext = ""
+    transposition_matrix = [["" for i in range(-(len(ciphertext) // -transposition_key))] for i in range(transposition_key)]
+    product_plaintext = ""
 
     i, j = 0, 0
-    for char in vigenere_plaintext:
+    for char in ciphertext:
 
         transposition_matrix[i][j] = char
 
@@ -257,11 +255,14 @@ def productDecrypt(ciphertext:str, vigenere_key:str, transposition_key:int):
             j = 0
             i += 1
 
+
     for j in range(len(transposition_matrix[0])):
 
         for i in range(transposition_key):
 
-            plaintext += transposition_matrix[i][j]
+            product_plaintext += transposition_matrix[i][j]
+    
+    plaintext = vigenereDecrypt(product_plaintext,vigenere_key)
 
     return plaintext
 
@@ -332,3 +333,4 @@ def vigenereAutokeyDecrypt(ciphertext:str, key:str):
         i += 1
 
     return plaintext
+

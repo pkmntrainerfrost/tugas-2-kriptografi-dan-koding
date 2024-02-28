@@ -157,7 +157,7 @@ async def product(textfile: UploadFile = File(...), vigenere_key: str = Form(...
         return {"plaintext" : plaintext}
     
 @app.post("/affine")
-async def affine(text: str = Form(...), vigenere_key: str = Form(...), m: int = Form(...), b: int = Form(...), encrypt: bool = Form(...), base64: bool = Form(...)) -> dict:
+async def affine(text: str = Form(...), m: int = Form(...), b: int = Form(...), encrypt: bool = Form(...), base64: bool = Form(...)) -> dict:
     
     if encrypt:
 
