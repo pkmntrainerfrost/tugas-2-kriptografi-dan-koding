@@ -73,14 +73,59 @@ def vigenereDecrypt(ciphertext:str, key:str):
 
 # Fungsi-fungsi extended vigenere cipher (WIP)
 
-def extendedVigenereEncrypt(plainbytes:bytes, key:str):
+def vigenereExtendedEncrypt(plaintext:str, key:str):
 
-    pass
 
-def extendedVigenereDecrypt(cipherbytes:bytes, key:str):
+    ciphertext = ""
+    i = 0
 
-    pass
+    for char in plaintext:
 
+        ciphertext += chr(((ord(char) + ord(key[i])) % 256))
+
+        i = (i + 1) % (len(key))
+
+    return ciphertext
+
+def vigenereExtendedDecrypt(ciphertext:str, key:str):
+
+    plaintext = ""
+    i = 0
+
+    for char in ciphertext:
+
+        plaintext += chr(((ord(char) - ord(key[i])) % 256))
+
+        i = (i + 1) % (len(key))
+
+    return plaintext
+
+def vigenereExtendedEncryptBytes(plainbytes, key:str):
+
+    ciphertext = b""
+    i = 0
+
+    while (byte := plainbytes.read(1)):
+
+        ciphertext += ((int.from_bytes(byte,"little") + ord(key[i])) % 256).to_bytes(1,"little")
+
+        i = (i + 1) % (len(key))
+
+    return ciphertext
+
+def vigenereExtendedDecryptBytes(cipherbytes, key:str):
+
+    plaintext = b""
+    i = 0
+
+    while (byte := cipherbytes.read(1)):
+
+        
+        plaintext += ((int.from_bytes(byte,"little") - ord(key[i])) % 256).to_bytes(1,"little")
+
+        i = (i + 1) % (len(key))
+
+    return plaintext
 
 # Fungsi-fungsi playfair cipher
 

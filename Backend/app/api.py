@@ -1,4 +1,5 @@
 from fastapi import FastAPI, Form, File, UploadFile, Request
+from fastapi.responses import FileResponse
 from fastapi.middleware.cors import CORSMiddleware
 
 from pydantic import BaseModel
@@ -53,6 +54,44 @@ async def vigenere(textfile: UploadFile = File(...), key: str = Form(...), encry
         plaintext = cipher.vigenereDecrypt((text if not base64 else cipher.base64Decrypt(text)),key)
     
         return {"plaintext" : plaintext}
+
+@app.post("/vigenereextended")
+async def vigenereextended(text: str = Form(...), key: str = Form(...), encrypt: bool = Form(...), base64: bool = Form(...)) -> dict:
+    
+    if encrypt:
+
+        ciphertext = cipher.vigenereExtendedEncrypt(text,key)
+
+        return {"ciphertext" : ciphertext}
+    
+    else:
+
+        plaintext = cipher.vigenereExtendedDecrypt(text,key)
+    
+        return {"plaintext" : plaintext}
+
+@app.post("/vigenereextended/file")
+async def vigenereextended(bytefile: UploadFile = File(...), key: str = Form(...), encrypt: bool = Form(...), base64: bool = Form(...)) -> dict:
+    
+    if encrypt:
+
+        ciphertext = cipher.vigenereExtendedEncryptBytes(bytefile.file,key)
+
+        with open(bytefile.filename, "wb") as binary_file:
+        
+            binary_file.write(ciphertext) 
+
+        return FileResponse(bytefile.filename)
+    
+    else:
+
+        plaintext = cipher.vigenereExtendedDecryptBytes(bytefile.file,key)
+
+        with open(bytefile.filename, "wb") as binary_file:
+        
+            binary_file.write(plaintext) 
+    
+        return FileResponse(bytefile.filename)
 
 @app.post("/playfair")
 async def playfair(text: str = Form(...), key: str = Form(...), encrypt: bool = Form(...), base64: bool = Form(...)) -> dict:
