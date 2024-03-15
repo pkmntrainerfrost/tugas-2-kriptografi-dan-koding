@@ -51,7 +51,7 @@ def rc4KSA(key:str,vigenere_key:str):
         s[i], s[j] = s[j], s[i]
 
     # Modified affine for keyschedule
-
+        
     m = sum([ord(char) for char in vigenere_key]) % 256
 
     if (m == 0 or m == 1):
@@ -82,11 +82,13 @@ def rc4Keystream(key:str, vigenere_key:str):
     s = rc4KSA(key, vigenere_key)
     return rc4PRGA(s)
 
-def rc4Encrypt(plaintext:str, key:str, vigenere_key:str):
+# For text input
+
+def rc4(plaintext:str, key:str, vigenere_key:str):
 
     random.seed(vigenere_key)
 
-    plaintext_array = [ord(plaintext[i]) for i in range(len(plaintext))]
+    plaintext_array = [ord(i) for i in plaintext]
     key_array = [ord(key[i]) for i in range(len(key))]
     vigenere_key_array = [ord(key[i]) for i in range(len(key)) if ord(key[i]) <= 255]
 
@@ -97,10 +99,14 @@ def rc4Encrypt(plaintext:str, key:str, vigenere_key:str):
     i = 0
 
     for char in plaintext_array:
-        
+
+        # extended vigenere to keystream
+
         add_vigenere = random.randint(0,1)
         k = (next(keystream) + (add_vigenere * vigenere_key_array[i])) % 256
         i = (i + add_vigenere) % len(vigenere_key_array)
+
+        # XOR
 
         new_char = (char ^ k)
 
@@ -108,33 +114,9 @@ def rc4Encrypt(plaintext:str, key:str, vigenere_key:str):
 
     return ''.join(ciphertext)
 
-def rc4Decrypt(ciphertext:str, key:str, vigenere_key:str):
+# For byte input
 
-    random.seed(vigenere_key)
-
-    ciphertext_array = [ord(ciphertext[i]) for i in range(len(ciphertext))]
-    key_array = [ord(key[i]) for i in range(len(key))]
-    vigenere_key_array = [ord(key[i]) for i in range(len(key)) if ord(key[i]) <= 255]
-
-    keystream = rc4Keystream(key_array,vigenere_key)
-
-    plaintext = []
-
-    i = 0
-
-    for char in ciphertext_array:
-
-        add_vigenere = random.randint(0,1)
-        k = (next(keystream) + (add_vigenere * vigenere_key_array[i])) % 256
-        i = (i + add_vigenere) % len(vigenere_key_array)
-
-        new_char = (char ^ k)
-
-        plaintext.append(chr(new_char))
-
-    return ''.join(plaintext)
-
-def rc4EncryptBytes(plainbytes, key:str, vigenere_key:str):
+def rc4Bytes(plainbytes, key:str, vigenere_key:str):
 
     random.seed(vigenere_key)
 
@@ -150,54 +132,22 @@ def rc4EncryptBytes(plainbytes, key:str, vigenere_key:str):
     while (byte := plainbytes.read(1)):
 
         byte_int = int.from_bytes(byte,"little")
+
+        # extended vigenere to keystream
         
         add_vigenere = random.randint(0,1)
         k = (next(keystream) + (add_vigenere * vigenere_key_array[i])) % 256
         i = (i + add_vigenere) % len(vigenere_key_array)
 
+        # XOR
+
         new_byte = (byte_int ^ k)
+
+        print(new_byte)
 
         cipherbytes += (new_byte.to_bytes(1,"little"))
 
     return cipherbytes
-
-def rc4DecryptBytes(cipherbytes, key:str, vigenere_key:str):
-
-    random.seed(vigenere_key)
-
-    key_array = [ord(key[i]) for i in range(len(key))]
-    vigenere_key_array = [ord(key[i]) for i in range(len(key)) if ord(key[i]) <= 255]
-
-    keystream = rc4Keystream(key_array,vigenere_key)
-
-    plainbytes = b""
-
-    i = 0
-
-    while (byte := plainbytes.read(1)):
-
-        byte_int = int.from_bytes(byte,"little")
-
-        add_vigenere = random.randint(0,1)
-        k = (next(keystream) - (add_vigenere * vigenere_key_array[i])) % 256
-        i = (i + add_vigenere) % len(vigenere_key_array)
-
-        new_byte = (byte_int ^ k)
-
-        plainbytes += chr(new_byte)
-
-    return b''.join(plainbytes)
-
-if __name__=="__main__": 
-    
-    x = (rc4Encrypt("pedia","Wiki","testing"))
-
-    print(x)
-
-    y = (rc4Encrypt(x,"Wiki","testing"))
-
-    print(y)
-
 
 # Fungsi-fungsi standard vigenere cipher
 

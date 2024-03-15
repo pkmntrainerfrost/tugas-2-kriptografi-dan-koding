@@ -29,6 +29,87 @@ templates = Jinja2Templates(directory="templates/")
 @app.get("/")
 async def home(request: Request):
     return templates.TemplateResponse('index.html', {'request': request})
+    
+@app.post("/modifiedrc4")
+async def modifiedrc4(text: str = Form(...), key: str = Form(...), vigenere_key: str = Form(...), encrypt: bool = Form(...), base64: bool = Form(...)) -> dict:
+
+    if encrypt:
+
+        print(text)
+        ciphertext = cipher.rc4(text,key,vigenere_key)
+        print(ciphertext)
+        ciphertext = ciphertext if not base64 else cipher.base64Encrypt(ciphertext)
+        print(ciphertext)
+
+        return {"results" : ciphertext}
+    
+    else:
+
+        converted = text if not base64 else cipher.base64Decrypt(text)
+        plaintext = cipher.rc4(converted,key,vigenere_key)
+    
+        return {"results" : plaintext}
+    
+@app.post("/modifiedrc4/file")
+async def modifiedrc4(filepath: str = Form(...), destinationfilepath: str = Form(...), key: str = Form(...), vigenere_key: str = Form(...), encrypt: bool = Form(...), base64: bool = Form(...)) -> dict:
+
+    try:
+        if filepath.endswith(".txt"):
+            textfile = open(filepath,"r")
+        else:
+            bytefile = open(filepath,"rb")
+    except:
+        return {"error" : "Invalid file or filepath!"}
+
+    if encrypt:
+
+        if filepath.endswith(".txt"):
+
+            ciphertext = cipher.rc4(textfile.read(),key,vigenere_key)
+            ciphertext = ciphertext if not base64 else cipher.base64Encrypt(ciphertext)
+
+            with open(destinationfilepath + ".txt", "w") as new_text_file:
+
+                new_text_file.write(ciphertext)
+            
+            textfile.close()
+
+        else:
+
+            ciphertext = cipher.rc4Bytes(bytefile,key,vigenere_key)
+
+            with open(destinationfilepath, "wb") as binary_file:
+            
+                binary_file.write(ciphertext) 
+            
+            bytefile.close()
+
+        return {"saved" : destinationfilepath}
+    
+    else:
+
+        if filepath.endswith(".txt"):
+
+            plaintext = cipher.rc4((textfile.read() if not base64 else cipher.base64Decrypt(textfile.read())),key,vigenere_key)
+
+            with open(destinationfilepath + ".txt", "w") as new_text_file:
+
+                new_text_file.write(plaintext)
+            
+            textfile.close()
+
+        else:
+
+            plaintext = cipher.rc4Bytes(bytefile,key,vigenere_key)
+
+            with open(destinationfilepath, "wb") as binary_file:
+            
+                binary_file.write(plaintext) 
+            
+            bytefile.close()
+
+        return {"saved" : destinationfilepath}
+
 
 # @app.post("/vigenere")
 # async def vigenere(text: str = Form(...), key: str = Form(...), encrypt: bool = Form(...), base64: bool = Form(...)) -> dict:
@@ -68,84 +149,6 @@ async def home(request: Request):
 #         plaintext = cipher.vigenereDecrypt((text if not base64 else cipher.base64Decrypt(text)),key)
     
 #         return {"plaintext" : plaintext}
-    
-@app.post("/modifiedrc4")
-async def modifiedrc4(text: str = Form(...), key: str = Form(...), vigenere_key: str = Form(...), encrypt: bool = Form(...), base64: bool = Form(...)) -> dict:
-
-    if encrypt:
-
-        ciphertext = cipher.rc4Encrypt(text,key,vigenere_key)
-        ciphertext = ciphertext if not base64 else cipher.base64Encrypt(ciphertext)
-
-        return {"results" : ciphertext}
-    
-    else:
-
-        print(cipher.base64Decrypt(text))
-
-        plaintext = cipher.rc4Encrypt((text if not base64 else cipher.base64Decrypt(text)),key,vigenere_key)
-    
-        return {"results" : plaintext}
-    
-@app.post("/modifiedrc4/file")
-async def modifiedrc4(filepath: str = Form(...), destinationfilepath: str = Form(...), key: str = Form(...), vigenere_key: str = Form(...), encrypt: bool = Form(...), base64: bool = Form(...)) -> dict:
-
-    try:
-        if filepath.endswith(".txt"):
-            textfile = open(filepath,"r")
-        else:
-            bytefile = open(filepath,"rb")
-    except:
-        return {"error" : "Invalid file or filepath!"}
-
-    if encrypt:
-
-        if filepath.endswith(".txt"):
-
-            ciphertext = cipher.rc4Encrypt(textfile.read(),key,vigenere_key)
-            ciphertext = ciphertext if not base64 else cipher.base64Encrypt(ciphertext)
-
-            with open(destinationfilepath + ".txt", "w") as new_text_file:
-
-                new_text_file.write(ciphertext)
-            
-            textfile.close
-
-        else:
-
-            ciphertext = cipher.rc4EncryptBytes(bytefile,key,vigenere_key)
-
-            with open(destinationfilepath, "wb") as binary_file:
-            
-                binary_file.write(ciphertext) 
-            
-            bytefile.close()
-
-        return {"saved" : destinationfilepath}
-    
-    else:
-
-        if filepath.endswith(".txt"):
-
-            plaintext = cipher.rc4Encrypt((textfile.read() if not base64 else cipher.base64Decrypt(textfile.read())),key,vigenere_key)
-
-            with open(destinationfilepath + ".txt", "w") as new_text_file:
-
-                new_text_file.write(plaintext)
-            
-            textfile.close
-
-        else:
-
-            plaintext = cipher.rc4EncryptBytes(bytefile,key,vigenere_key)
-
-            with open(destinationfilepath, "wb") as binary_file:
-            
-                binary_file.write(plaintext) 
-            
-            bytefile.close()
-
-        return {"saved" : destinationfilepath}
 
 # @app.post("/vigenereextended")
 # async def vigenereextended(text: str = Form(...), key: str = Form(...), encrypt: bool = Form(...), base64: bool = Form(...)) -> dict:
