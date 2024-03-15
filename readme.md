@@ -1,25 +1,22 @@
-# Tugas 1 II4031 Kriptografi dan Koding
+# Tugas 2 II4031 Kriptografi dan Koding
 ## Dibuat oleh:
 - 18221115 Christopher Febrian Nugraha
 - 18221102 Salman Ma'arif Achsien
 
 # Deskripsi Tugas 
-Mahasiswa ditugaskan untuk membuat ragam cipher klasik dapat dijalankan melalui program melalui perantara GUI dengan bahasa pemrograman yang dibebaskan. Mahasiswa **DILARANG** untuk menggunakan modul yang sudah terdefinisi unutuk membuat cipher-cipher yang akan diimplementasikan. Adapun cipher yang ditugaskan diantaranya:
-1. Vigenere Cipher (26 huruf alfabet)
-2. Affine Cipher (26 huruf alfabet)
-3. Playfair Cipher (26 huruf alfabet)
-4. Autokey Cipher (26 huruf alfabet)
-5. Extended Vigenere Cipher (256 karakter ASCII)
-6. Product Cipher (26 huruf alfabet)
+Mahasiswa ditugaskan untuk sebuah program modifikasi RC4 (modified RC4) yang dapat dijalankan melalui perantara GUI dengan bahasa pemrograman yang dibebaskan. Mahasiswa diharapkan memodifikasi prosedur KSA atau PRGA di dalam RC4 dan menggabungkannya dengan konsep Extended Vigenere Cipher/Playfair Cipher/Affine Cipher. Mahasiswa juga dapat membuat fungsi permutasi yang lebih kompleks.
+Konsep yang dipilih:
+- KSA dimodifikasi menggunakan Modified Affine Cipher
+- PRGA dimodifikasi menggunakan Extended Vigenere Cipher
+- Implementasi Extended Vigenere Cipher disertai penggunaan P-RNG untuk mempersulit kriptanalisis
 
 # Spesifikasi
 - Program dapat menerima _message_ (ke depannya disebut _plaintext_) berupa teks yang diketikkan dari _keyboard_ atau file sembarang (file .txt maupun file biner).
-- Program dapat mengenkripsi _plaintext_ dari masukan pengguna. Selain dari algoritma _Extended Vigenere Cipher_, program hanya mengenkripsi karakter alfabet saja. Angka, spasi, tanda baca, dan simbol lainnya diabaikan dan dibuang saat _ciphertext_ ditampilkan atau disimpan sebagai file.
-- Untuk algoritma _Playfair Cipher_, konsensus yang diambil jika terdapat dua huruf X yang muncul berturut-turut dalam _plaintext_ adalah untuk mengganti huruf X dengan huruf lain (seperti Q ataupun Z) sebagai karakter yang diselipkan jika terdapat dua huruf yang muncul berturut-turut dalam _plaintext_.
+- Program dapat mengenkripsi _plaintext_ dari masukan pengguna.
 - Program dapat mendekripsi _ciphertext_ menjadi _plaintext_ semula sehingga dapat dibuka atau diinterpretasikan seperti semula sebelum enkripsi.
 - Untuk _plaintext_ berupa teks masukan pengguna, program akan menampilkan _plaintext_ dan _ciphertext_ di layar. Hal ini tidak terjadi bagi _plaintext_ berupa file dari pengguna.
-- Program dapat menyimpan _ciphertext_ yang sudah dihasilkan ke dalam file .dat dalam direktori tertentu.
-- Kunci dari masing-masing algoritma dimasukkan oleh pengguna. Panjang kunci bebas. Khusus algoritma _Affine Cipher_ dan _Product Cipher_, terdapat kunci tambahan yang harus dimasukkan, yaitu kunci B untuk _Affine_ dan kunci transposisi untuk _Product_.
+- Program dapat menyimpan _ciphertext_ yang sudah dihasilkan ke dalam file sembarang dalam direktori tertentu.
+- Kunci dari algoritma RC4 dan Extended Vigenere wajib dimasukkan dan secara terpisah oleh pengguna.
 - Untuk enkripsi _plaintext_ file sembarang pada algoritma _Extended Vigenere Cipher_, setiap file diperlakukan sebagai file of bytes. Program membaca setiap byte di dalam file (termasuk byte-byte header file) dan mengenkripsinya. Dengan melakukan dekripsi, maka file tersebut dapat dibuka kembali oleh aplikasinya.
 
 # Cara Menjalankan Aplikasi pada Windows OS
@@ -42,4 +39,4 @@ Mahasiswa ditugaskan untuk membuat ragam cipher klasik dapat dijalankan melalui 
     > py main.py
 2. Modul uvicorn akan menginisiasi server. Jika tertulis "Application startup complete." ini berarti server telah siap digunakan.
 3. Akses IP Address yang muncul pada layar terminal (dalam hal ini bagian 0.0.0.0 dapat digantikan dengan localhost menjadi http://localhost:8000).
-4. Anda sudah bisa menggunakan algoritma yang tersedia dan selamat mencoba beragam _cipher_ yang ingin digunakan.
+4. Anda sudah bisa menggunakan algoritma yang tersedia dan selamat mencoba algoritma RC4 yang sudah kami modifikasi.
