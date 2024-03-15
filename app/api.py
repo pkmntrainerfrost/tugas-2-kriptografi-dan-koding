@@ -72,10 +72,20 @@ async def home(request: Request):
 @app.post("/modifiedrc4")
 async def modifiedrc4(text: str = Form(...), key: str = Form(...), vigenere_key: str = Form(...), encrypt: bool = Form(...), base64: bool = Form(...)) -> dict:
 
-    ciphertext = cipher.rc4Encrypt(text,key,vigenere_key)
+    if encrypt:
 
-    return {"results" : ciphertext}
+        ciphertext = cipher.rc4Encrypt(text,key,vigenere_key)
+        ciphertext = ciphertext if not base64 else cipher.base64Encrypt(ciphertext)
+
+        return {"results" : ciphertext}
     
+    else:
+
+        print(cipher.base64Decrypt(text))
+
+        plaintext = cipher.rc4Encrypt((text if not base64 else cipher.base64Decrypt(text)),key,vigenere_key)
+    
+        return {"results" : plaintext}
     
 @app.post("/modifiedrc4/file")
 async def modifiedrc4(filepath: str = Form(...), destinationfilepath: str = Form(...), key: str = Form(...), vigenere_key: str = Form(...), encrypt: bool = Form(...), base64: bool = Form(...)) -> dict:
@@ -88,27 +98,54 @@ async def modifiedrc4(filepath: str = Form(...), destinationfilepath: str = Form
     except:
         return {"error" : "Invalid file or filepath!"}
 
-    if filepath.endswith(".txt"):
+    if encrypt:
 
-        ciphertext = cipher.rc4Encrypt(textfile.read(),key,vigenere_key)
+        if filepath.endswith(".txt"):
 
-        with open(destinationfilepath + ".txt", "w") as new_text_file:
+            ciphertext = cipher.rc4Encrypt(textfile.read(),key,vigenere_key)
+            ciphertext = ciphertext if not base64 else cipher.base64Encrypt(ciphertext)
 
-            new_text_file.write(ciphertext)
-        
-        textfile.close
+            with open(destinationfilepath + ".txt", "w") as new_text_file:
 
+                new_text_file.write(ciphertext)
+            
+            textfile.close
+
+        else:
+
+            ciphertext = cipher.rc4EncryptBytes(bytefile,key,vigenere_key)
+
+            with open(destinationfilepath, "wb") as binary_file:
+            
+                binary_file.write(ciphertext) 
+            
+            bytefile.close()
+
+        return {"saved" : destinationfilepath}
+    
     else:
 
-        ciphertext = cipher.rc4EncryptBytes(bytefile,key,vigenere_key)
+        if filepath.endswith(".txt"):
 
-        with open(destinationfilepath, "wb") as binary_file:
-        
-            binary_file.write(ciphertext) 
-        
-        bytefile.close()
+            plaintext = cipher.rc4Encrypt((textfile.read() if not base64 else cipher.base64Decrypt(textfile.read())),key,vigenere_key)
 
-    return {"saved" : destinationfilepath}
+            with open(destinationfilepath + ".txt", "w") as new_text_file:
+
+                new_text_file.write(plaintext)
+            
+            textfile.close
+
+        else:
+
+            plaintext = cipher.rc4EncryptBytes(bytefile,key,vigenere_key)
+
+            with open(destinationfilepath, "wb") as binary_file:
+            
+                binary_file.write(plaintext) 
+            
+            bytefile.close()
+
+        return {"saved" : destinationfilepath}
 
 # @app.post("/vigenereextended")
 # async def vigenereextended(text: str = Form(...), key: str = Form(...), encrypt: bool = Form(...), base64: bool = Form(...)) -> dict:

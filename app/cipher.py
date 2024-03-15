@@ -22,7 +22,7 @@ def preprocess(string:str):
 
 def base64Encrypt(string:str):
 
-    plaintext_bytes = string.encode("ascii")
+    plaintext_bytes = string.encode("utf-8")
 
     base64_bytes = base64.b64encode(plaintext_bytes)
     base64_string = base64_bytes.decode("ascii")
@@ -34,7 +34,7 @@ def base64Decrypt(string:str):
     base64_bytes = string.encode("ascii")
 
     plaintext_bytes = base64.b64decode(base64_bytes)
-    plaintext_string = plaintext_bytes.decode("ascii")
+    plaintext_string = plaintext_bytes.decode("utf-8")
 
     return plaintext_string
 
