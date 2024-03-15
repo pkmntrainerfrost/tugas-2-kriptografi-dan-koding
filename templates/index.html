@@ -14,7 +14,7 @@
 </head>
 <body>
     <div class="container">
-        <h1 class="text-center mt-5">Rahasiakan isi pesanmu dengan cipher!</h1>
+        <h1 class="text-center mt-5">Rahasiakan isi pesanmu dengan Modified RC4!</h1>
         <div class="row justify-content-center">
             <div class="col-md-8">
                 <form id="cipherForm" class="mt-5" enctype="multipart/form-data">
@@ -34,12 +34,7 @@
                     <div class="form-group">
                         <label for="cipherSelect">Cipher</label>
                         <select id="cipherSelect" name="cipher" class="custom-select" required onchange="updateFormFields()">
-                            <option value="vigenere">Vigenere</option>
-                            <option value="affine">Affine</option>
-                            <option value="playfair">Playfair</option>
-                            <option value="vigenereautokey">Autokey Vigenere</option>
-                            <option value="vigenereextended">Extended Vigenere</option>
-                            <option value="product">Product</option>
+                            <option value="modifiedrc4">Modified RC4</option>
                         </select>
                     </div>
                     <div class="form-group" id="base64FormGroup">
@@ -51,8 +46,7 @@
                     <div id="inputFields">
                     </div>
                     <div class="form-group">
-                        <button type="button" class="btn btn-primary" onclick="processData(true)">Encrypt</button>
-                        <button type="button" class="btn btn-secondary" onclick="processData(false)">Decrypt</button>
+                        <button type="button" class="btn btn-primary" onclick="processData(true)">Encrypt/Decrypt</button>
                     </div>
                 </form>
                 <div id="resultSection" class="mt-5">
@@ -85,7 +79,7 @@
 
             inputFields.innerHTML = '';
 
-            base64FormGroup.style.display = cipher === 'vigenereextended' ? 'none' : 'block';
+            base64FormGroup.style.display = (cipher === 'vigenereextended' || cipher === 'modifiedrc4') ? 'none' : 'block';
             if (cipher === 'vigenereextended') {
                 document.getElementById('base64').checked = false;
             }
@@ -104,7 +98,7 @@
                         <input type="text" id="filepath" name="filepath" class="form-control" required>
                     </div>
                 `;
-                if (cipher === 'vigenereextended') {
+                if (cipher === 'vigenereextended' || cipher === "modifiedrc4") {
                     inputFields.innerHTML += `
                     <div class="form-group">
                         <label for="fileInput">Destination Filepath</label>
@@ -134,6 +128,14 @@
                         <input id="affineB" name="b" type="number" class="form-control" required>
                     </div>
                 `;
+            }
+
+            if (cipher === 'modifiedrc4') {
+                inputFields.innerHTML += `
+                    <div class="form-group">
+                        <label for="productKey">Vigenere Key</label>
+                        <input id="productKey" name="vigenere_key" type="text" class="form-control" required>
+                    </div>`;
             }
 
             if (cipher === 'product') {
@@ -201,7 +203,7 @@
             if (result.error) {
                 resultText = `<p class="text-danger">${result.error}</p>`;
             } else {                
-                var key = encrypt ? 'ciphertext' : 'plaintext';
+                var key = encrypt ? 'results' : 'plaintext';
                 if (result["error"] !== undefined) {
                     key = "error";
                     resultText = `<p><strong>Error:</strong> ${result[key]}</p>`;
@@ -209,7 +211,7 @@
                     key = "saved";
                     resultText = `<p><strong>Result saved as</strong> ${result[key]}</p>`;
                 } else {
-                    resultText = `<p><strong><a href="data:text/plain;charset=utf-8,${encodeURIComponent(result[key])}" download="results.txt">${encrypt ? 'Ciphertext' : 'Plaintext'} (click to download as a .txt file):</a></strong></p><p style="word-break: break-all">${result[key]}</p>`;
+                    resultText = `<p><strong><a href="data:text/plain;charset=utf-8,${encodeURIComponent(result[key])}" download="results.txt">${encrypt ? 'Result' : 'Plaintext'} (click to download as a .txt file):</a></strong></p><p style="word-break: break-all">${result[key]}</p>`;
                 }
                 
             }

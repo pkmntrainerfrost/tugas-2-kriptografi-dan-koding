@@ -30,73 +30,77 @@ templates = Jinja2Templates(directory="templates/")
 async def home(request: Request):
     return templates.TemplateResponse('index.html', {'request': request})
 
-@app.post("/vigenere")
-async def vigenere(text: str = Form(...), key: str = Form(...), encrypt: bool = Form(...), base64: bool = Form(...)) -> dict:
+# @app.post("/vigenere")
+# async def vigenere(text: str = Form(...), key: str = Form(...), encrypt: bool = Form(...), base64: bool = Form(...)) -> dict:
     
-    if encrypt:
+#     if encrypt:
 
-        ciphertext = cipher.vigenereEncrypt(text,key)
-        ciphertext = ciphertext if not base64 else cipher.base64Encrypt(ciphertext)
+#         ciphertext = cipher.vigenereEncrypt(text,key)
+#         ciphertext = ciphertext if not base64 else cipher.base64Encrypt(ciphertext)
 
-        return {"ciphertext" : ciphertext}
+#         return {"ciphertext" : ciphertext}
     
-    else:
+#     else:
 
-        plaintext = cipher.vigenereDecrypt((text if not base64 else cipher.base64Decrypt(text)),key)
+#         plaintext = cipher.vigenereDecrypt((text if not base64 else cipher.base64Decrypt(text)),key)
     
-        return {"plaintext" : plaintext}
+#         return {"plaintext" : plaintext}
 
-@app.post("/vigenere/file")
-async def vigenere(filepath: str = Form(...), key: str = Form(...), encrypt: bool = Form(...), base64: bool = Form(...)) -> dict:
+# @app.post("/vigenere/file")
+# async def vigenere(filepath: str = Form(...), key: str = Form(...), encrypt: bool = Form(...), base64: bool = Form(...)) -> dict:
     
-    text = ""
+#     text = ""
+
+#     try:
+#         with open(filepath,"r") as textfile:
+#             text = textfile.read()
+#     except:
+#         return {"error" : "Invalid file or filepath!"}
+
+#     if encrypt:
+
+#         ciphertext = ciphertext if not base64 else cipher.base64Encrypt(ciphertext)
+
+#         return {"ciphertext" : ciphertext}
+    
+#     else:
+
+#         plaintext = cipher.vigenereDecrypt((text if not base64 else cipher.base64Decrypt(text)),key)
+    
+#         return {"plaintext" : plaintext}
+    
+@app.post("/modifiedrc4")
+async def modifiedrc4(text: str = Form(...), key: str = Form(...), vigenere_key: str = Form(...), encrypt: bool = Form(...), base64: bool = Form(...)) -> dict:
+
+    ciphertext = cipher.rc4Encrypt(text,key,vigenere_key)
+
+    return {"results" : ciphertext}
+    
+    
+@app.post("/modifiedrc4/file")
+async def modifiedrc4(filepath: str = Form(...), destinationfilepath: str = Form(...), key: str = Form(...), vigenere_key: str = Form(...), encrypt: bool = Form(...), base64: bool = Form(...)) -> dict:
 
     try:
-        with open(filepath,"r") as textfile:
-            text = textfile.read()
+        if filepath.endswith(".txt"):
+            textfile = open(filepath,"r")
+        else:
+            bytefile = open(filepath,"rb")
     except:
         return {"error" : "Invalid file or filepath!"}
 
-    if encrypt:
+    if filepath.endswith(".txt"):
 
-        ciphertext = ciphertext if not base64 else cipher.base64Encrypt(ciphertext)
+        ciphertext = cipher.rc4Encrypt(textfile.read(),key,vigenere_key)
 
-        return {"ciphertext" : ciphertext}
-    
+        with open(destinationfilepath + ".txt", "w") as new_text_file:
+
+            new_text_file.write(ciphertext)
+        
+        textfile.close
+
     else:
 
-        plaintext = cipher.vigenereDecrypt((text if not base64 else cipher.base64Decrypt(text)),key)
-    
-        return {"plaintext" : plaintext}
-
-@app.post("/vigenereextended")
-async def vigenereextended(text: str = Form(...), key: str = Form(...), encrypt: bool = Form(...), base64: bool = Form(...)) -> dict:
-    
-    if encrypt:
-
-        ciphertext = cipher.vigenereExtendedEncrypt(text,key)
-
-        return {"ciphertext" : ciphertext}
-    
-    else:
-
-        plaintext = cipher.vigenereExtendedDecrypt(text,key)
-    
-        return {"plaintext" : plaintext}
-
-@app.post("/vigenereextended/file")
-async def vigenereextended(filepath: str = Form(...), destinationfilepath: str = Form(...), key: str = Form(...), encrypt: bool = Form(...), base64: bool = Form(...)) -> dict:
-    
-    text = ""
-
-    try:
-        bytefile = open(filepath,"rb")
-    except:
-        return {"error" : "Invalid file or filepath!"}
-
-    if encrypt:
-
-        ciphertext = cipher.vigenereExtendedEncryptBytes(bytefile,key)
+        ciphertext = cipher.rc4EncryptBytes(bytefile,key,vigenere_key)
 
         with open(destinationfilepath, "wb") as binary_file:
         
@@ -104,182 +108,219 @@ async def vigenereextended(filepath: str = Form(...), destinationfilepath: str =
         
         bytefile.close()
 
-        return {"saved" : destinationfilepath}
+    return {"saved" : destinationfilepath}
+
+# @app.post("/vigenereextended")
+# async def vigenereextended(text: str = Form(...), key: str = Form(...), encrypt: bool = Form(...), base64: bool = Form(...)) -> dict:
     
-    else:
+#     if encrypt:
 
-        plaintext = cipher.vigenereExtendedDecryptBytes(bytefile,key)
+#         ciphertext = cipher.vigenereExtendedEncrypt(text,key)
 
-        with open(destinationfilepath, "wb") as binary_file:
+#         return {"ciphertext" : ciphertext}
+    
+#     else:
+
+#         plaintext = cipher.vigenereExtendedDecrypt(text,key)
+    
+#         return {"plaintext" : plaintext}
+
+# @app.post("/vigenereextended/file")
+# async def vigenereextended(filepath: str = Form(...), destinationfilepath: str = Form(...), key: str = Form(...), encrypt: bool = Form(...), base64: bool = Form(...)) -> dict:
+    
+#     text = ""
+
+#     try:
+#         bytefile = open(filepath,"rb")
+#     except:
+#         return {"error" : "Invalid file or filepath!"}
+
+#     if encrypt:
+
+#         ciphertext = cipher.vigenereExtendedEncryptBytes(bytefile,key)
+
+#         with open(destinationfilepath, "wb") as binary_file:
         
-            binary_file.write(plaintext) 
+#             binary_file.write(ciphertext) 
+        
+#         bytefile.close()
 
-        bytefile.close()
+#         return {"saved" : destinationfilepath}
     
-        return {"saved" : destinationfilepath}
+#     else:
 
-@app.post("/playfair")
-async def playfair(text: str = Form(...), key: str = Form(...), encrypt: bool = Form(...), base64: bool = Form(...)) -> dict:
+#         plaintext = cipher.vigenereExtendedDecryptBytes(bytefile,key)
+
+#         with open(destinationfilepath, "wb") as binary_file:
+        
+#             binary_file.write(plaintext) 
+
+#         bytefile.close()
     
-    if encrypt:
+#         return {"saved" : destinationfilepath}
 
-        ciphertext = cipher.playfairEncrypt(text,key)
-        ciphertext = ciphertext if not base64 else cipher.base64Encrypt(ciphertext)
-
-        return {"ciphertext" : ciphertext}
+# @app.post("/playfair")
+# async def playfair(text: str = Form(...), key: str = Form(...), encrypt: bool = Form(...), base64: bool = Form(...)) -> dict:
     
-    else:
+#     if encrypt:
 
-        plaintext = cipher.playfairDecrypt((text if not base64 else cipher.base64Decrypt(text)),key)
+#         ciphertext = cipher.playfairEncrypt(text,key)
+#         ciphertext = ciphertext if not base64 else cipher.base64Encrypt(ciphertext)
+
+#         return {"ciphertext" : ciphertext}
     
-        return {"plaintext" : plaintext}
+#     else:
+
+#         plaintext = cipher.playfairDecrypt((text if not base64 else cipher.base64Decrypt(text)),key)
     
-@app.post("/playfair/file")
-async def playfair(filepath: str = Form(...), key: str = Form(...), encrypt: bool = Form(...), base64: bool = Form(...)) -> dict:
+#         return {"plaintext" : plaintext}
     
-    text = ""
-
-    try:
-        with open(filepath,"r") as textfile:
-            text = textfile.read()
-    except:
-        return {"error" : "Invalid file or filepath!"}
-
-    if encrypt:
-
-        ciphertext = cipher.playfairEncrypt(text,key)
-        ciphertext = ciphertext if not base64 else cipher.base64Encrypt(ciphertext)
-
-        return {"ciphertext" : ciphertext}
+# @app.post("/playfair/file")
+# async def playfair(filepath: str = Form(...), key: str = Form(...), encrypt: bool = Form(...), base64: bool = Form(...)) -> dict:
     
-    else:
+#     text = ""
 
-        plaintext = cipher.playfairDecrypt((text if not base64 else cipher.base64Decrypt(text)),key)
+#     try:
+#         with open(filepath,"r") as textfile:
+#             text = textfile.read()
+#     except:
+#         return {"error" : "Invalid file or filepath!"}
+
+#     if encrypt:
+
+#         ciphertext = cipher.playfairEncrypt(text,key)
+#         ciphertext = ciphertext if not base64 else cipher.base64Encrypt(ciphertext)
+
+#         return {"ciphertext" : ciphertext}
     
-        return {"plaintext" : plaintext}
+#     else:
+
+#         plaintext = cipher.playfairDecrypt((text if not base64 else cipher.base64Decrypt(text)),key)
     
-@app.post("/vigenereautokey")
-async def vigereautokey(text: str = Form(...), key: str = Form(...), encrypt: bool = Form(...), base64: bool = Form(...)) -> dict:
+#         return {"plaintext" : plaintext}
     
-    if encrypt:
-
-        ciphertext = cipher.vigenereAutokeyEncrypt(text,key)
-        ciphertext = ciphertext if not base64 else cipher.base64Encrypt(ciphertext)
-
-        return {"ciphertext" : ciphertext}
+# @app.post("/vigenereautokey")
+# async def vigereautokey(text: str = Form(...), key: str = Form(...), encrypt: bool = Form(...), base64: bool = Form(...)) -> dict:
     
-    else:
+#     if encrypt:
 
-        plaintext = cipher.vigenereAutokeyDecrypt((text if not base64 else cipher.base64Decrypt(text)),key)
+#         ciphertext = cipher.vigenereAutokeyEncrypt(text,key)
+#         ciphertext = ciphertext if not base64 else cipher.base64Encrypt(ciphertext)
+
+#         return {"ciphertext" : ciphertext}
     
-        return {"plaintext" : plaintext}
+#     else:
 
-@app.post("/vigenereautokey/file")
-async def vigereautokey(filepath: str = Form(...), key: str = Form(...), encrypt: bool = Form(...), base64: bool = Form(...)) -> dict:
+#         plaintext = cipher.vigenereAutokeyDecrypt((text if not base64 else cipher.base64Decrypt(text)),key)
     
-    text = ""
+#         return {"plaintext" : plaintext}
 
-    try:
-        with open(filepath,"r") as textfile:
-            text = textfile.read()
-    except:
-        return {"error" : "Invalid file or filepath!"}
-
-    if encrypt:
-
-        ciphertext = cipher.vigenereAutokeyEncrypt(text,key)
-        ciphertext = ciphertext if not base64 else cipher.base64Encrypt(ciphertext)
-
-        return {"ciphertext" : ciphertext}
+# @app.post("/vigenereautokey/file")
+# async def vigereautokey(filepath: str = Form(...), key: str = Form(...), encrypt: bool = Form(...), base64: bool = Form(...)) -> dict:
     
-    else:
+#     text = ""
 
-        plaintext = cipher.vigenereAutokeyDecrypt((text if not base64 else cipher.base64Decrypt(text)),key)
+#     try:
+#         with open(filepath,"r") as textfile:
+#             text = textfile.read()
+#     except:
+#         return {"error" : "Invalid file or filepath!"}
+
+#     if encrypt:
+
+#         ciphertext = cipher.vigenereAutokeyEncrypt(text,key)
+#         ciphertext = ciphertext if not base64 else cipher.base64Encrypt(ciphertext)
+
+#         return {"ciphertext" : ciphertext}
     
-        return {"plaintext" : plaintext}
+#     else:
 
-@app.post("/product")
-async def product(text: str = Form(...), vigenere_key: str = Form(...), transposition_key: int = Form(...), encrypt: bool = Form(...), base64: bool = Form(...)) -> dict:
+#         plaintext = cipher.vigenereAutokeyDecrypt((text if not base64 else cipher.base64Decrypt(text)),key)
     
-    if encrypt:
+#         return {"plaintext" : plaintext}
 
-        ciphertext = cipher.productEncrypt(text,vigenere_key,transposition_key)
-        ciphertext = ciphertext if not base64 else cipher.base64Encrypt(ciphertext)
-
-        return {"ciphertext" : ciphertext}
+# @app.post("/product")
+# async def product(text: str = Form(...), vigenere_key: str = Form(...), transposition_key: int = Form(...), encrypt: bool = Form(...), base64: bool = Form(...)) -> dict:
     
-    else:
+#     if encrypt:
 
-        plaintext = cipher.productDecrypt((text if not base64 else cipher.base64Decrypt(text)),vigenere_key,transposition_key)
+#         ciphertext = cipher.productEncrypt(text,vigenere_key,transposition_key)
+#         ciphertext = ciphertext if not base64 else cipher.base64Encrypt(ciphertext)
+
+#         return {"ciphertext" : ciphertext}
     
-        return {"plaintext" : plaintext}
+#     else:
 
-@app.post("/product/file")
-async def product(filepath: str = Form(...), vigenere_key: str = Form(...), transposition_key: int = Form(...), encrypt: bool = Form(...), base64: bool = Form(...)) -> dict:
+#         plaintext = cipher.productDecrypt((text if not base64 else cipher.base64Decrypt(text)),vigenere_key,transposition_key)
     
-    text = ""
+#         return {"plaintext" : plaintext}
 
-    try:
-        with open(filepath,"r") as textfile:
-            text = textfile.read()
-    except:
-        return {"error" : "Invalid file or filepath!"}
-
-    if encrypt:
-
-        ciphertext = cipher.productEncrypt(text,vigenere_key,transposition_key)
-        ciphertext = ciphertext if not base64 else cipher.base64Encrypt(ciphertext)
-
-        return {"ciphertext" : ciphertext}
+# @app.post("/product/file")
+# async def product(filepath: str = Form(...), vigenere_key: str = Form(...), transposition_key: int = Form(...), encrypt: bool = Form(...), base64: bool = Form(...)) -> dict:
     
-    else:
+#     text = ""
 
-        plaintext = cipher.productDecrypt((text if not base64 else cipher.base64Decrypt(text)),vigenere_key,transposition_key)
+#     try:
+#         with open(filepath,"r") as textfile:
+#             text = textfile.read()
+#     except:
+#         return {"error" : "Invalid file or filepath!"}
+
+#     if encrypt:
+
+#         ciphertext = cipher.productEncrypt(text,vigenere_key,transposition_key)
+#         ciphertext = ciphertext if not base64 else cipher.base64Encrypt(ciphertext)
+
+#         return {"ciphertext" : ciphertext}
     
-        return {"plaintext" : plaintext}
+#     else:
+
+#         plaintext = cipher.productDecrypt((text if not base64 else cipher.base64Decrypt(text)),vigenere_key,transposition_key)
     
-@app.post("/affine")
-async def affine(text: str = Form(...), m: int = Form(...), b: int = Form(...), encrypt: bool = Form(...), base64: bool = Form(...)) -> dict:
+#         return {"plaintext" : plaintext}
     
-    # validasi hardcode soalnya kepepet waktu
-    relprimes = [1,3,5,7,9,11,15,17,19,21,23,25]
-    if (m <= 0 or m >= 26 or (m not in relprimes)):
-        return {"error" : "M is not relatively prime with 26!"}
-
-    if encrypt:
-
-        ciphertext = cipher.affineEncrypt(text,m,b)
-        ciphertext = ciphertext if not base64 else cipher.base64Encrypt(ciphertext)
-
-        return {"ciphertext" : ciphertext}
+# @app.post("/affine")
+# async def affine(text: str = Form(...), m: int = Form(...), b: int = Form(...), encrypt: bool = Form(...), base64: bool = Form(...)) -> dict:
     
-    else:
+#     # validasi hardcode soalnya kepepet waktu
+#     relprimes = [1,3,5,7,9,11,15,17,19,21,23,25]
+#     if (m <= 0 or m >= 26 or (m not in relprimes)):
+#         return {"error" : "M is not relatively prime with 26!"}
 
-        plaintext = cipher.affineDecrypt((text if not base64 else cipher.base64Decrypt(text)),m,b)
+#     if encrypt:
+
+#         ciphertext = cipher.affineEncrypt(text,m,b)
+#         ciphertext = ciphertext if not base64 else cipher.base64Encrypt(ciphertext)
+
+#         return {"ciphertext" : ciphertext}
     
-        return {"plaintext" : plaintext}
+#     else:
 
-@app.post("/affine/file")
-async def affine(filepath: str = Form(...) , m: int = Form(...), b: int = Form(...), encrypt: bool = Form(...), base64: bool = Form(...)) -> dict:
+#         plaintext = cipher.affineDecrypt((text if not base64 else cipher.base64Decrypt(text)),m,b)
     
-    text = ""
+#         return {"plaintext" : plaintext}
 
-    try:
-        with open(filepath,"r") as textfile:
-            text = textfile.read()
-    except:
-        return {"error" : "Invalid file or filepath!"}
-
-    if encrypt:
-
-        ciphertext = cipher.affineEncrypt(text,m,b)
-        ciphertext = ciphertext if not base64 else cipher.base64Encrypt(ciphertext)
-
-        return {"ciphertext" : ciphertext}
+# @app.post("/affine/file")
+# async def affine(filepath: str = Form(...) , m: int = Form(...), b: int = Form(...), encrypt: bool = Form(...), base64: bool = Form(...)) -> dict:
     
-    else:
+#     text = ""
 
-        plaintext = cipher.affineDecrypt((text if not base64 else cipher.base64Decrypt(text)),m,b)
+#     try:
+#         with open(filepath,"r") as textfile:
+#             text = textfile.read()
+#     except:
+#         return {"error" : "Invalid file or filepath!"}
+
+#     if encrypt:
+
+#         ciphertext = cipher.affineEncrypt(text,m,b)
+#         ciphertext = ciphertext if not base64 else cipher.base64Encrypt(ciphertext)
+
+#         return {"ciphertext" : ciphertext}
     
-        return {"plaintext" : plaintext}
+#     else:
+
+#         plaintext = cipher.affineDecrypt((text if not base64 else cipher.base64Decrypt(text)),m,b)
+    
+#         return {"plaintext" : plaintext}
     
