@@ -208,7 +208,7 @@
                     key = "saved";
                     resultText = `<p><strong>Result saved as</strong> ${result[key]}</p>`;
                 } else {
-                    resultText = `<p><strong><a href="data:text/plain;charset=utf-8,${encodeURIComponent(result[key])}" download="results.txt">${encrypt ? 'Result' : 'Plaintext'} (click to download as a .txt file):</a></strong></p><p style="word-break: break-all">${result[key]}</p>`;
+                    resultText = `<p><strong><a href="data:text/plain;charset=utf-8,${encodeURIComponent(result[key])}" download="results.txt">${encrypt ? 'Result' : 'Result'} (click to download as a .txt file):</a></strong></p><p style="word-break: break-all">${result[key]}</p>`;
                 }
                 
             }
